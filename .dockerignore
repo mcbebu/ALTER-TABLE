@@ -1,3 +1,17 @@
+# Dashboards
+shipper-dashboard
+user-dashboard
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Git
+.git
+
+# Markdown
+README.md
+
 # Environment Variables
 .env
 
