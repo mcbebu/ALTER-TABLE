@@ -32,7 +32,7 @@ import { auth } from '../../firebase'
 import {useQuery} from '@tanstack/react-query'
 
 const getUserData = async (idToken) => {
-  const {data} = await axios.get(`${import.meta.env.VITE_SERVER_URL}/hello`, {
+  const {data} = await axios.get(`${import.meta.env.VITE_SERVER_URL}/user`, {
     headers: {
       'Authorization': `Bearer ${idToken}`
     }
@@ -45,7 +45,8 @@ export default function UserForm() {
   const {data, isSuccess} = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
     enabled: !!user
   })
-  console.log("read ", JSON.stringify(user));
+  console.log("user ", JSON.stringify(user))
+  console.log("read ", JSON.stringify(data));
   const idxToTime = (index) => {
     if (index == 0) {
       return '12AM';
