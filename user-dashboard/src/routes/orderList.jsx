@@ -2,9 +2,10 @@ import OrderCard from '../components/ordercard'
 import Header from '../components/header'
 import { Center, VStack, Text, Box, SimpleGrid } from '@chakra-ui/react';
 import { useState } from 'react';
-
+import { useNavigate } from "react-router-dom";
 import { auth } from '../../firebase'
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 const dummyUser = {
   id: '129445',
@@ -76,15 +77,26 @@ const dummyData = [
 
 export default function OrderedList() {
   const [user] = useAuthState(auth);
+  const navigate = useNavigate();
+  const logOut = () => {
+    alert('logging out...');
+    signOut(auth).then(() => {
+      // Sign-out successful.
+      navigate("/login")
+    }).catch((error) => {
+      // An error happened.
+      alert(error);
+    });
+  }
   return (
     <h1>
-      <Header />
-      <SimpleGrid spacingY={4} mt={6} columns={{'sm':1, 'xl':2}}>
+      <Header currentUser={user} logOut={logOut} />
+      <SimpleGrid spacingY={4} mt={6} columns={{ 'sm': 1, 'xl': 2 }}>
         {dummyData.map((eachOrder, index) => (
           <Box boxShadow={'xl'} m='auto'>
             <OrderCard data={eachOrder} index={index} userData={dummyUser}></OrderCard>
           </Box>
-          )
+        )
         )}
       </SimpleGrid>
     </h1>
