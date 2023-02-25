@@ -37,12 +37,6 @@ const getUserData = async (idToken) => {
 
 export default function UserForm() {
 
-  // const d = (x) => {
-  //   console.log(x);
-  //   return x;
-  // }
-
-  const [selectedAddress, setAddress] = useState(0);
   const [user] = useAuthState(auth);
   const { data, isSuccess } = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
     enabled: !!user
@@ -50,92 +44,70 @@ export default function UserForm() {
   console.log("user ", JSON.stringify(user))
   console.log("read ", JSON.stringify(data));
 
-  let addresses = [];
-  try {
-    data.map((val, index) => {
-      addresses.push(val);
-    })
-  }
-  catch (e) {
-    addresses.push(data);
-  }
-  const [userAddresses, updateAddress] = useState(addresses);
-  if (userAddresses.length > addresses.length) {
-    addresses.push(userAddresses[addresses.length]);
+  const [selectedAddress, setAddress] = useState(0);
+
+  if (data && !data?.addresses) {
+    data.addresses = [];
   }
 
-  useEffect(() => {
-    // Update the document title using the browser API
-    console.log(userAddresses);
-  });
+  const updateAddress = () => {
+    alert("congrats! write update now");
+    console.log(data.addresses);
+  }
 
   const convertValue = (value) => {
-    let tmp = [];
     let idx = 0;
-    while (value['userAddr1_' + (idx + 1)]) {
-      let obj = {};
-      obj.id = addresses[idx].id;
-      obj.name = addresses[idx].name;
-      obj.title = addresses[idx].title;
-      obj.instructions = addresses[idx].instructions;
-      obj.leavePArcel = addresses[idx].leaveParcel;
-      obj.status = addresses[idx].status;
-      obj.mobileNumber = value['phoneNumber_' + (idx + 1)];
-      obj.emailAddr = value['email_' + (idx + 1)];
-      obj.userAddrs = [value['userAddr1_' + (idx + 1)], value['userAddr2_' + (idx + 1)], value['userAddr3_' + (idx + 1)], value['city_' + (idx + 1)], value['postalCode_' + (idx + 1)]];
-      tmp.push(obj);
+    while (value['userAddr1_' + (idx + 1)] && value['email_' + (idx + 1)] && value['city_' + (idx + 1)] && value['postalCode_' + (idx + 1)]) {
+      data.addresses[idx].EmailAddr = value['email_' + (idx + 1)];
+      data.addresses[idx].UserAddr1 = value['userAddr1_' + (idx + 1)];
+      if (value['userAddr2_' + (idx + 1)]) data.addresses[idx].UserAddr2 = value['userAddr2_' + (idx + 1)];
+      if (value['userAddr3_' + (idx + 1)]) data.addresses[idx].UserAddr3 = value['userAddr3_' + (idx + 1)];
+      data.addresses[idx].City = value['city_' + (idx + 1)];
+      data.addresses[idx].PostalCode = value['postalCode_' + (idx + 1)];
       idx++;
     }
-    return tmp;
   }
 
   const getInitials = () => {
     const initialV = {};
-    initialV.notifications = [];
-    addresses.forEach((address, index) => {
-      address?.notifications?.map((entry, index) => {
-        initialV.notifications.push(entry);
-      })
-      if (address && !address.userAddrs) {
-        initialV['userAddr1_' + (index + 1)] = "";
-        initialV['userAddr2_' + (index + 1)] = "";
-        initialV['userAddr3_' + (index + 1)] = "";
-        initialV['city_' + (index + 1)] = "";
-        initialV['postalCode_' + (index + 1)] = "";
-        initialV['phoneNumber_' + (index + 1)] = "";
-        initialV['email_' + (index + 1)] = "";
-      }
-      if (address?.userAddrs) initialV['userAddr1_' + (index + 1)] = address.userAddrs[0];
-      else initialV['userAddr1_' + (index + 1)] = "";
-      if (address?.userAddrs && address.userAddrs[1]) initialV['userAddr2_' + (index + 1)] = address.userAddrs[1];
-      else initialV['userAddr2_' + (index + 1)] = "";
-      if (address?.userAddrs && address.userAddrs[2]) initialV['userAddr3_' + (index + 1)] = address.userAddrs[2];
-      else initialV['userAddr3_' + (index + 1)] = "";
-      if (address?.userAddrs && address.userAddrs[3]) initialV['city_' + (index + 1)] = address.userAddrs[3];
-      else initialV['city_' + (index + 1)] = "";
-      if (address?.userAddrs && address.userAddrs[4]) initialV['postalCode_' + (index + 1)] = address.userAddrs[4];
-      else initialV['postalCode_' + (index + 1)] = "";
-      if (address?.mobileNumber) initialV['phoneNumber_' + (index + 1)] = address.mobileNumber;
-      else initialV['phoneNumber_' + (index + 1)] = "";
-      if (address?.emailAddr) initialV['email_' + (index + 1)] = address.emailAddr;
-      else initialV['email_' + (index + 1)] = "";
-    });
+    data?.addresses?.forEach((address, index) => {
+      initialV['email_' + (index + 1)] = address.EmailAddr;
+      initialV['userAddr1_' + (index + 1)] = address.UserAddr1;
+      initialV['userAddr2_' + (index + 1)] = address.UserAddr2 ? address.UserAddr2 : "";
+      initialV['userAddr3_' + (index + 1)] = address.UserAddr3 ? address.UserAddr3 : "";
+      initialV['city_' + (index + 1)] = address.City;
+      initialV['postalCode_' + (index + 1)] = address.PostalCode;
+    })
     return initialV;
   }
 
   const addAddress = () => {
-    addresses.push({
-      id: addresses[0].id,
-      name: addresses[0].name,
-      title: addresses[0].title,
-      instructions: addresses[0].instructions,
-      leavePArcel: addresses[0].leaveParcel,
-      status: addresses[0].status,
-      mobileNumber: addresses[0].mobileNumber,
-      emailAddr: addresses[0].emailAddr,
-    })
-    console.log(addresses);
-    updateAddress(addresses);
+    data.addresses.push({
+      emailAddr: "",
+      UserAddr1: "",
+      UserAddr2: "",
+      UserAddr3: "",
+      City: "",
+      PostalCode: "",
+    });
+    setAddress(data.addresses.length);
+  }
+
+  const changeNoti = (hash) => {
+    console.log(hash);
+    data.notifications[0] = hash.includes('0');
+    data.notifications[1] = hash.includes('1');
+    data.notifications[2] = hash.includes('2');
+    data.notifications[3] = hash.includes('3');
+    console.log(data.notifications);
+  }
+
+  const defaultNoti = () => {
+    const tmp = [];
+    if (data?.notifications[0]) tmp.push('0');
+    if (data?.notifications[1]) tmp.push('1');
+    if (data?.notifications[2]) tmp.push('2');
+    if (data?.notifications[3]) tmp.push('3');
   }
 
   return (
@@ -147,7 +119,8 @@ export default function UserForm() {
           onSubmit={(values, actions) => {
             setTimeout(() => {
               alert(JSON.stringify(values, null, 2));
-              updateAddress(convertValue(values));
+              convertValue(values);
+              updateAddress();
               actions.setSubmitting(false);
             }, 1000);
           }}
@@ -166,16 +139,16 @@ export default function UserForm() {
                   }}
                 >
                   {
-                    userAddresses.map((address, index) => (
+                    data?.addresses.map((address, index) => (
                       <option value={index + 1}>{'Address ' + (index + 1)}</option>
                     ))
                   }
                 </Select>
-                <Button m={'auto'} colorScheme='red' onClick={addAddress}>Add Address</Button>
+                <Button m={'auto'} colorScheme='red' onClick={addAddress} >Add Address</Button>
               </Flex>
               <VStack spacing={4} align="flex-start">
                 {
-                  userAddresses.map((address, index) => (
+                  data?.addresses.map((address, index) => (
                     selectedAddress == index + 1
                       ? <VStack spacing={4} align="flex-start" w={'full'} id={'Address' + (index + 1)}>
                         <Text fontSize={'xl'} as={'b'}>{'Address ' + (index + 1)}</Text>
@@ -241,27 +214,14 @@ export default function UserForm() {
                               <FormErrorMessage>{props.errors.password}</FormErrorMessage>
                             </FormControl>
                           </GridItem>
-                          <GridItem>
+                          <GridItem colSpan={2}>
                             <FormControl>
-                              <FormLabel htmlFor={"phoneNumber" + (index + 1)}>Phone Number</FormLabel>
+                              <FormLabel htmlFor={"email_" + (index + 1)}>Email</FormLabel>
                               <Field
                                 as={Input}
-                                id={"phoneNumber" + (index + 1)}
-                                name={"phoneNumber" + (index + 1)}
-                                type={"phoneNumber" + (index + 1)}
-                                variant="filled"
-                                placeholder="Phone"
-                              />
-                            </FormControl>
-                          </GridItem>
-                          <GridItem>
-                            <FormControl>
-                              <FormLabel htmlFor={"email" + (index + 1)}>Email</FormLabel>
-                              <Field
-                                as={Input}
-                                id={"email" + (index + 1)}
-                                name={"email" + (index + 1)}
-                                type={"email" + (index + 1)}
+                                id={"email_" + (index + 1)}
+                                name={"email_" + (index + 1)}
+                                type={"email_" + (index + 1)}
                                 variant="filled"
                                 placeholder="John.Doe@example.com"
                               />
@@ -276,13 +236,15 @@ export default function UserForm() {
                   <Text fontSize={'xl'} as={'b'}>Notifications</Text>
                   <FormControl as='fieldset'>
                     <FormLabel as='legend'>Notify before delivery (Always notify 10 minutes before and on delivery)</FormLabel>
-                    <HStack spacing='24px'>
-                      <Checkbox isDisabled defaultChecked>10 minutes</Checkbox>
-                      <Checkbox defaultChecked={props.initialValues.notifications[0]}>20 minutes</Checkbox>
-                      <Checkbox defaultChecked={props.initialValues.notifications[1]}>30 minutes</Checkbox>
-                      <Checkbox defaultChecked={props.initialValues.notifications[2]}>40 minutes</Checkbox>
-                      <Checkbox defaultChecked={props.initialValues.notifications[3]}>50 minutes</Checkbox>
-                    </HStack>
+                    <CheckboxGroup colorScheme='green' onChange={changeNoti} defaultValue={defaultNoti()}>
+                      <HStack spacing='24px'>
+                        <Checkbox isDisabled defaultChecked>10 minutes</Checkbox>
+                        <Checkbox value={'0'}>20 minutes</Checkbox>
+                        <Checkbox value={'1'}>30 minutes</Checkbox>
+                        <Checkbox value={'2'}>40 minutes</Checkbox>
+                        <Checkbox value={'3'}>50 minutes</Checkbox>
+                      </HStack>
+                    </CheckboxGroup>
                   </FormControl>
                 </VStack>
                 <ButtonGroup gap='4' justifyContent={'flex-end'} w={'full'}>
