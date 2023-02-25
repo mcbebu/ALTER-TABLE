@@ -34,10 +34,8 @@ const getUserData = async (idToken) => {
 }
 
 export default function UserForm() {
-<<<<<<< HEAD
 
   const [selectedAddress, setAddress] = useState(0);
-=======
   const [user] = useAuthState(auth);
   const {data, isSuccess} = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
     enabled: !!user
@@ -67,7 +65,6 @@ export default function UserForm() {
     [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]
   ]
   const filteredData = dummyData[0].map((_, colIndex) => dummyData.map(row => row[colIndex]));
->>>>>>> 00bbc81c7366ce5d8cb9683cde1a1ea855cdb293
 
   return (
     <Flex align="center" justify="center" pt='0em'>
