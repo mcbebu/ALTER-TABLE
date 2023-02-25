@@ -1,0 +1,30 @@
+# Dashboards
+shipper-dashboard
+user-dashboard
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Git
+.git
+
+# Markdown
+README.md
+
+# Environment Variables
+.env
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Builds
+tmp
