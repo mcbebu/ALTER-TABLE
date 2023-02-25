@@ -6,6 +6,9 @@ user-dashboard
 Dockerfile
 .dockerignore
 
+# k8s
+k8s
+
 # Git
 .git
 
