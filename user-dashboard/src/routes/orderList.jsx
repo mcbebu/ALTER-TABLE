@@ -36,98 +36,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Formik, Field } from "formik";
 
-const dummyUser = {
-  id: "129445",
-  mobileNumber: "19789",
-  addresses: [
-    {
-      userAddr1: "38 Nanyang Cres",
-      userAddr2: "Saraca Hall",
-      userAddr3: "22-11-22",
-      city: "Singapore West",
-      postalCode: "636866",
-    },
-    {
-      userAddr1: "38 UTown",
-      userAddr2: "Prince George Park",
-      userAddr3: "24-1",
-      city: "Singapore South",
-      postalCode: "666666",
-    },
-  ],
-};
-
-const dummyData = [
-  {
-    id: "01273048120",
-    name: "Puri Virakarn",
-    title: "parcel name",
-    userAddrs: [
-      "38 UTown",
-      "Prince George Park",
-      "24-1",
-      "Singapore South",
-      "666666",
-    ],
-    instructions: ["Leave Parcel at the door"],
-    leaveParcel: true,
-    status: "On the way",
-    mobileNumber: "123446",
-    emailAddr: "adsfljas@opijpo.co.sg",
-  },
-  {
-    id: "10283490870",
-    name: "Puri Virakarn",
-    title: "parcel name",
-    userAddrs: [
-      "38 UTown",
-      "Prince George Park",
-      "24-1",
-      "Singapore South",
-      "666666",
-    ],
-    instructions: ["Leave Parcel at the door"],
-    leaveParcel: true,
-    status: "Picked up",
-    mobileNumber: "083290",
-    emailAddr: "name@gmail.addr",
-  },
-  {
-    id: "2134235432",
-    name: "Puri Virakarn",
-    title: "parcel name",
-    userAddrs: [
-      "38 Nanyang Cres",
-      "Saraca Hall",
-      "22-11-22",
-      "Singapore West",
-      "636866",
-    ],
-    instructions: ["Leave Parcel at the door"],
-    leaveParcel: true,
-    status: "Picked up",
-    mobileNumber: "083290",
-    emailAddr: "loc@facebook.ai",
-  },
-  {
-    id: "18379489234",
-    name: "Puri Virakarn",
-    title: "parcel name",
-    userAddrs: [
-      "38 Nanyang Cres",
-      "Saraca Hall",
-      "22-11-22",
-      "Singapore West",
-      "636866",
-    ],
-    instructions: ["Leave Parcel at the door"],
-    leaveParcel: true,
-    status: "Order created",
-    mobileNumber: "083290",
-    emailAddr: "asdlf@asf.com",
-  },
-];
-
 const getOrder = async (idToken) => {
   const { data } = await axios.get(
     `${import.meta.env.VITE_SERVER_URL}/orders`,
@@ -149,13 +57,27 @@ const getUser = async (idToken) => {
   return data;
 };
 
-const writeData = async ({val, id, idToken}) => {
-  const { data } = await axios.put(`${import.meta.env.VITE_SERVER_URL}/order/${id}`, val, {
+const writeData = async ({pushdata, id, idToken, leaveParcelVal, newuserdata, addrIndex, value}) => {
+  let tempData = pushdata;
+  tempData.leaveParcel = leaveParcelVal;
+  tempData.instructions = pushdata.instructions;
+  console.log(value)
+  tempData.address = {
+    emailAddr: value,
+    userAddr1: newuserdata.addresses[addrIndex].userAddr1,
+    userAddr2: newuserdata.addresses[addrIndex].userAddr2,
+    userAddr3: newuserdata.addresses[addrIndex].userAddr3,
+    city: newuserdata.addresses[addrIndex].city,
+    postalCode: newuserdata.addresses[addrIndex].postalCode,
+  }
+  tempData.name = pushdata.name;
+  tempData.mobileNumber = pushdata.mobileNumber;
+  tempData.leaveParcel = leaveParcelVal;
+  const { data } = await axios.put(`${import.meta.env.VITE_SERVER_URL}/order/${id}`, tempData, {
     headers: {
       Authorization: `Bearer ${idToken}`
     }
   })
-  console.log(data);
 };
 
 export default function OrderedList() {
@@ -176,7 +98,6 @@ export default function OrderedList() {
       onSuccess: () => console.log(userdata),
     }
   );
-  console.log(userdata);
   const logOut = () => {
     alert("logging out...");
     signOut(auth)
@@ -193,7 +114,7 @@ export default function OrderedList() {
   const OrderCard = (props) => {
     const client = useQueryClient()
     const toast = useToast()
-    const {mutate: updateOrder} = useMutation(({val, id, idToken}) => writeData({val, id, idToken}), {
+    const {mutate: updateOrder} = useMutation(({pushdata, id, idToken, leaveParcelVal, newuserdata, addrIndex, value}) => writeData({pushdata, id, idToken, leaveParcelVal, newuserdata, addrIndex, value}), {
       onSuccess: () => {
         toast({
           title: "Order Updated",
@@ -221,8 +142,8 @@ export default function OrderedList() {
     const [editing, setEditing] = useState(0);
     const [leaveParcelVal, setLeaveParcel] = useState(data.leaveParcel);
     const [addressIndex, setAddressIndex] = useState(0);
+    const [email, setEmail] = useState(data[props.index].address.emailAddr)
     // dummyUser.addresses.findIndex((x)=>{return x.userAddr1===data.userAddrs[0];})
-    console.log(data, isSuccess);
     const addressIndexChange = (e) => {
       setAddressIndex(e.target.value);
     };
@@ -273,7 +194,7 @@ export default function OrderedList() {
                   </Text>
                   <Box ml={6}>{data[props.index].mobileNumber}</Box>
                   <Box ml={6}>{data[props.index].name}</Box>
-                  <Box ml={6}>{data[props.index].address.emailAddr}</Box>
+                  <Box ml={6}>{email}</Box>
                   <Text fontSize="20px" fontWeight="semibold">
                     Delivery Instruction(s)
                   </Text>
@@ -282,6 +203,11 @@ export default function OrderedList() {
                       {data[props.index].instructions.map((value, index) => (
                         <Box ml={6}>{value}</Box>
                       ))}
+                    </>
+                  )}
+                  {!data[props.index].instructions && (
+                    <>
+                        <Box ml={6} fontStyle='italic'>No Instructions</Box>
                     </>
                   )}
                   <Text fontSize="20px" fontWeight="semibold">
@@ -355,11 +281,12 @@ export default function OrderedList() {
                         leaveParcel: data[props.index].leaveParcel,
                         emailAddr: data[props.index].address.emailAddr,
                       }}
-                      onSubmit={(values) => {
+                      onSubmit={async (values, actions) => {
                         setEditing(0);
                         // writeData(values);
-                        updateOrder({val: values, id: '', idToken: ''})
+                        updateOrder({pushdata: data[props.index], val: values, id: data[props.index].id, idToken: await user.getIdToken(), leaveParcelVal: leaveParcelVal, newuserdata: userdata, addrIndex: addressIndex, value: email})
                         // alert(JSON.stringify(values, null, 2));
+                        actions.resetForm();
                       }}
                     >
                       {({ handleSubmit, errors, touched }) => (
@@ -370,18 +297,18 @@ export default function OrderedList() {
                             </Text>
                             {userdata.addresses ? (
                               <Select onChange={(e) => addressIndexChange(e)}>
-                                {dummyUser.addresses[0] && (
+                                {userdata.addresses[0] && (
                                   <option value={0}>
-                                    {dummyUser.addresses[0].userAddr1}, {"  "}
-                                    {dummyUser.addresses[0].userAddr2}, {"  "}
-                                    {dummyUser.addresses[0].userAddr3}
+                                    {userdata.addresses[0].userAddr1}, {"  "}
+                                    {userdata.addresses[0].userAddr2}, {"  "}
+                                    {userdata.addresses[0].userAddr3}
                                   </option>
                                 )}
-                                {dummyUser.addresses[1] && (
+                                {userdata.addresses[1] && (
                                   <option value={1}>
-                                    {dummyUser.addresses[1].userAddr1}, {"  "}
-                                    {dummyUser.addresses[1].userAddr2}, {"  "}
-                                    {dummyUser.addresses[1].userAddr3}
+                                    {userdata.addresses[1].userAddr1}, {"  "}
+                                    {userdata.addresses[1].userAddr2}, {"  "}
+                                    {userdata.addresses[1].userAddr3}
                                   </option>
                                 )}
                               </Select>
@@ -428,6 +355,8 @@ export default function OrderedList() {
                                 type="emailAddr"
                                 variant="filled"
                                 placeholder="John Doe"
+                                value={email}
+                                onChange={((e)=>setEmail(e.target.value))}
                               />
                             </FormControl>
                             <FormControl>
