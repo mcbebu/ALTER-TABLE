@@ -32,5 +32,31 @@ spec:
       containers:
       - name: myninja-server
         image: ckasidis/myninja-server:latest
+        env:
+        - name: PG_HOST
+          valueFrom:
+            secretKeyRef:
+              name: server-secret
+              key: pg-host
+        - name: PG_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: server-secret
+              key: pg-database
+        - name: PG_USER
+          valueFrom:
+            secretKeyRef:
+              name: server-secret
+              key: pg-user
+        - name: PG_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: server-secret
+              key: pg-password
+        - name: FIREBASE_CRED
+          valueFrom:
+            secretKeyRef:
+              name: server-secret
+              key: firebase-cred
         ports:
         - containerPort: 8080
