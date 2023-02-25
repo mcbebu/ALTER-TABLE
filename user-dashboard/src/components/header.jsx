@@ -49,7 +49,7 @@ export default function Header({ currentUser, logOut }) {
             onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems={'center'}>
-            <Box>NinjaPlus</Box>
+            <Box>MyNinja</Box>
           </HStack>
           <Flex alignItems={'center'}>
             <Menu>
