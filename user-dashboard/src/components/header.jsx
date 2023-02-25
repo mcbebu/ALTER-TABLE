@@ -25,12 +25,16 @@ const Links = ['Dashboard', 'Orders'];
 
 const NavLink = ({ children }) => (
   <Link
-    px={2}
-    py={1}
+    px={4}
+    py={2}
+    m={0}
+    h={10}
     rounded={'md'}
+    color='white'
+    fontWeight='bold'
     _hover={{
       textDecoration: 'none',
-      bg: useColorModeValue('gray.200', 'gray.700'),
+      bg: useColorModeValue('red.700', 'red.700'),
     }}
     href={'/' + children}>
     {children}
@@ -42,14 +46,15 @@ export default function Header({ currentUser, logOut }) {
 
   return (
     <>
-      <Box bg={'rgba(35,31,32)'} px={4}>
-        <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
+      <Box bg={'rgba(35,31,32)'}>
+        <Flex px={4} h={16} alignItems={'center'} justifyContent={'space-between'}>
           <Flex flex={1} mr={'auto'}>
             <IconButton
               size={'md'}
               icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
               aria-label={'Open Menu'}
               onClick={isOpen ? onClose : onOpen}
+              _hover={{ bg: 'red.600' }}
             />
           </Flex>
           <Flex flex={1} alignItems="center">
@@ -68,7 +73,6 @@ export default function Header({ currentUser, logOut }) {
               <MenuList>
                 <MenuItem>Dashboard</MenuItem>
                 <MenuItem>Orders</MenuItem>
-                <MenuDivider />
                 <MenuItem onClick={() => { logOut() }}>Log Out</MenuItem>
               </MenuList>
             </Menu>
@@ -78,7 +82,7 @@ export default function Header({ currentUser, logOut }) {
         {
           isOpen ? (
             <Box pb={4} >
-              <Stack as={'nav'} spacing={4}>
+              <Stack as={'nav'} spacing={1}>
                 {Links.map((link) => (
                   <NavLink key={link}>{link}</NavLink>
                 ))}
