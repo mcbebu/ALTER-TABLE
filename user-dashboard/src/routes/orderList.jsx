@@ -33,7 +33,7 @@ const dummyData = [
     id: '01273048120',
     name: 'Puri Virakarn',
     title: "parcel name",
-    userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
+    userAddrs: ["38 UTown", "Prince George Park", "24-1", "Singapore South", "666666"],
     instructions: ["Leave Parcel at the door"],
     leaveParcel: true,
     status: "On the way",
@@ -44,7 +44,7 @@ const dummyData = [
     id: '10283490870',
     name: 'Puri Virakarn',
     title: "parcel name",
-    userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
+    userAddrs: ["38 UTown", "Prince George Park", "24-1", "Singapore South", "666666"],
     instructions: ["Leave Parcel at the door"],
     leaveParcel: true,
     status: "Picked up",
@@ -55,7 +55,7 @@ const dummyData = [
     id: '2134235432',
     name: 'Puri Virakarn',
     title: "parcel name",
-    userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
+    userAddrs: ["38 Nanyang Cres", "Saraca Hall", "22-11-22", "Singapore West", "636866"],
     instructions: ["Leave Parcel at the door"],
     leaveParcel: true,
     status: "Picked up",
@@ -66,7 +66,7 @@ const dummyData = [
     id: '18379489234',
     name: 'Puri Virakarn',
     title: "parcel name",
-    userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
+    userAddrs: ["38 Nanyang Cres", "Saraca Hall", "22-11-22", "Singapore West", "636866"],
     instructions: ["Leave Parcel at the door"],
     leaveParcel: true,
     status: "Order created",
@@ -78,6 +78,7 @@ const dummyData = [
 export default function OrderedList() {
   const [user] = useAuthState(auth);
   const navigate = useNavigate();
+  const [data, setData] = useState(dummyData);
   const logOut = () => {
     alert('logging out...');
     signOut(auth).then(() => {
@@ -92,9 +93,9 @@ export default function OrderedList() {
     <h1>
       <Header currentUser={user} logOut={logOut} />
       <SimpleGrid spacingY={4} mt={6} columns={{ 'sm': 1, 'md': 3,'xl': 4 }}>
-        {dummyData.map((eachOrder, index) => (
+        {data.map((eachOrder, index) => (
           <Box boxShadow={'xl'} m='auto'>
-            <OrderCard data={eachOrder} index={index} userData={dummyUser}></OrderCard>
+            <OrderCard alldata={data} data={eachOrder} index={index} userData={dummyUser} setData={setData}></OrderCard>
           </Box>
         )
         )}

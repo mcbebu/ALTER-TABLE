@@ -31,16 +31,43 @@ import { Formik, Field } from 'formik'
 const mapColor = (status) =>{
     const statArr = ['Order created', 'Picked up', 'On the way', 'Delivered'];
     const color = ['gray.100', 'blue.100', 'yellow.100', 'green.100']
-    for (let i=0;i<4;i++) {
+    for (let i=0;i<4;i++) 
         if (statArr[i] === status) return color[i];
-    }
     return 'red.200';
 }
 
 const OrderCard = (props) => {
     const [editing, setEditing] = useState(0);
-    const [addressIndex, setAddressIndex] = useState(props.userData.addresses.findIndex((address) => (address && address.userAddr1===props.data.userAddr1)));
+    const [leaveParcelVal, setLeaveParcel] = useState(props.data.leaveParcel)
+    const [addressIndex, setAddressIndex] = useState(props.userData.addresses.findIndex((x)=>{console.log(props.data.userAddr1); return x.userAddr1===props.data.userAddrs[0];}));
     
+    const addressIndexChange = (e) => {
+        console.log(e.target.value)
+        setAddressIndex(e.target.value)
+        console.log("current addressindex", addressIndex)
+    }
+    const leaveParcelChange = (e) => {
+        setLeaveParcel(e.target.value)
+        console.log(e.target.value)
+    }
+    const writeData = (val) => {
+        let tempData = props.alldata;
+        // console.log("address", props.userData.addresses[addressIndex].userAddr1)
+        const addr = [
+            props.userData.addresses[addressIndex].userAddr1, 
+            props.userData.addresses[addressIndex].userAddr2, 
+            props.userData.addresses[addressIndex].userAddr3, 
+            props.userData.addresses[addressIndex].city, 
+            props.userData.addresses[addressIndex].postalCode
+        ]
+        tempData[props.index].userAddrs = addr;
+        tempData[props.index].name=val.name
+        tempData[props.index].emailAddr=val.emailAddr
+        tempData[props.index].mobileNumber=val.mobileNumber
+        tempData[props.index].instructions=[val.instructions] //
+        tempData[props.index].leaveParcel=leaveParcelVal 
+        props.setData(tempData)
+    }
     return (
         <>
             {(props.data.status==='On the way' || 
@@ -63,9 +90,11 @@ const OrderCard = (props) => {
                 </CardHeader>
                 <CardBody>
                     <Text fontSize='20px' fontWeight='semibold'>Address</Text>
-                    {props.data.userAddrs.map((value, index) => (
-                        <Box ml={6}>{value}</Box>
-                    ))}
+                        <Box ml={6}>{props.userData.addresses[addressIndex].userAddr1}</Box>
+                        <Box ml={6}>{props.userData.addresses[addressIndex].userAddr2}</Box>
+                        <Box ml={6}>{props.userData.addresses[addressIndex].userAddr3}</Box>
+                        <Box ml={6}>{props.userData.addresses[addressIndex].city}</Box> 
+                        <Box ml={6}>{props.userData.addresses[addressIndex].postalCode}</Box>
                     <Text fontSize='20px' fontWeight='semibold'>Contact Info</Text>
                         <Box ml={6}>{props.data.mobileNumber}</Box>
                         <Box ml={6}>{props.data.name}</Box>
@@ -75,7 +104,7 @@ const OrderCard = (props) => {
                         <Box ml={6}>{value}</Box>
                     ))}
                     <Text fontSize='20px' fontWeight='semibold'>Leave Parcel</Text>
-                        <Box ml={6}>{props.data.leaveParcel ? "Yes" : "No"}</Box>
+                        <Box ml={6}>{leaveParcelVal===true? "Yes" : "No"}</Box>
                 </CardBody>
                 {!(props.data.status==='On the way' || props.data.status==='Delivered') &&
                     <Button colorScheme='blue' onClick={(e)=>{e.preventDefault(); setEditing(1)}} type="submit">Edit Information</Button>}
@@ -124,6 +153,7 @@ const OrderCard = (props) => {
                         }}
                         onSubmit={(values) => {
                             setEditing(0);
+                            writeData(values);
                             alert(JSON.stringify(values, null, 2));
                         }}
                         >
@@ -131,16 +161,21 @@ const OrderCard = (props) => {
                             <form onSubmit={handleSubmit}>
                             <VStack spacing={2} align="flex-start">
                                 <Text fontSize='20px' fontWeight='semibold'>Address</Text>
-                                <Select placeholder={props.data.userAddr1}>
-                                {props.userData.addresses.map((addr, index) => (
-                                    addr && <option>
-                                                {props.userData.addresses[index].userAddr1}
-                                                , {"  "}
-                                                {props.userData.addresses[index].userAddr2}
-                                                , {"  "}
-                                                {props.userData.addresses[index].userAddr3}
-                                            </option>
-                                ))}
+                                <Select onChange={(e) => addressIndexChange(e)}>
+                                    {props.userData.addresses[0] && <option value={0}>
+                                        {props.userData.addresses[0].userAddr1}
+                                        , {"  "}
+                                        {props.userData.addresses[0].userAddr2}
+                                        , {"  "}
+                                        {props.userData.addresses[0].userAddr3}
+                                    </option>}
+                                    {props.userData.addresses[1] && <option value={1}>
+                                        {props.userData.addresses[1].userAddr1}
+                                        , {"  "}
+                                        {props.userData.addresses[1].userAddr2}
+                                        , {"  "}
+                                        {props.userData.addresses[1].userAddr3}
+                                    </option>}
                                 </Select>
                                 <FormControl>
                                 <Text fontSize='20px' fontWeight='semibold'>Recipient's</Text>
@@ -176,12 +211,22 @@ const OrderCard = (props) => {
                                     placeholder="John Doe"
                                 />
                                 </FormControl>
+                                <FormControl>
+                                <Text fontSize='20px' fontWeight='semibold'>Delivery Instructions</Text>
+                                <FormLabel htmlFor="instructions"></FormLabel>
+                                <Field
+                                    as={Input}
+                                    id="instructions"
+                                    name="instructions"
+                                    type="instructions"
+                                    variant="filled"
+                                />
+                                </FormControl>
                                 <Text fontSize='20px' fontWeight='semibold'>Leave Parcel</Text>
-                                <Select placeholder={props.data.leaveParcel}>
-                                    <option>Yes</option>
-                                    <option>No</option>
+                                <Select onChange={(e) => leaveParcelChange(e)}>
+                                    <option value={true}>Yes</option>
+                                    <option value={false}>No</option>
                                 </Select>
-
                                 <Button type="submit" colorScheme="purple" float={'left'}>
                                 Update Changes
                                 </Button>
