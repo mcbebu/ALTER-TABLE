@@ -1,3 +1,4 @@
+import react, { useState } from 'react';
 import { Formik, Field } from "formik";
 import {
   Box,
@@ -13,44 +14,34 @@ import {
   ButtonGroup,
   Grid,
   GridItem,
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
-  TableContainer,
+  Select,
   Checkbox,
   CheckboxGroup,
 } from "@chakra-ui/react";
+import axios from "axios";
+
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '../../firebase'
+import { useQuery } from '@tanstack/react-query'
+
+const getUserData = async (idToken) => {
+  const { data } = await axios.get(`${import.meta.env.VITE_SERVER_URL}/user`, {
+    headers: {
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+  return data
+}
 
 export default function UserForm() {
 
-  const idxToTime = (index) => {
-    if (index == 0) {
-      return '12AM';
-    }
-    if (index == 12) {
-      return '12PM';
-    }
-    if (index < 12) {
-      return index + 'AM';
-    }
-    return (index - 12) + 'PM';
-  }
-
-  const dummyData = [
-    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
-    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
-    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
-    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
-    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
-    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
-    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]
-  ]
-  const filteredData = dummyData[0].map((_, colIndex) => dummyData.map(row => row[colIndex]));
+  const [selectedAddress, setAddress] = useState(0);
+  const [user] = useAuthState(auth);
+  const { data, isSuccess } = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
+    enabled: !!user
+  })
+  console.log("user ", JSON.stringify(user))
+  console.log("read ", JSON.stringify(data));
 
   return (
     <Flex align="center" justify="center" pt='0em'>
@@ -73,9 +64,21 @@ export default function UserForm() {
         >
           {({ handleSubmit, errors, touched }) => (
             <form onSubmit={handleSubmit}>
+              <Select
+                placeholder='Select Address'
+                onChange={(e) => {
+                  setAddress(e.target.value ? e.target.value : 0)
+                }}
+                sx={{
+                  'margin': 4
+                }}
+              >
+                <option value='1'>Address 1</option>
+                <option value='2'>Address 2</option>
+              </Select>
               <VStack spacing={4} align="flex-start">
-                <VStack spacing={4} align="flex-start" w={'full'}>
-                  <Text fontSize={'xl'} as={'b'}>Shipping Address</Text>
+                {selectedAddress == 1 && <VStack spacing={4} align="flex-start" w={'full'} id='Address1'>
+                  <Text fontSize={'xl'} as={'b'}>Address 1</Text>
                   <FormControl isInvalid={!!errors.password && touched.password}>
                     <FormLabel htmlFor="userAddr1">Address Line 1</FormLabel>
                     <Field
@@ -169,9 +172,9 @@ export default function UserForm() {
                       </FormControl>
                     </GridItem>
                   </Grid>
-                </VStack>
-                <VStack spacing={4} align="flex-start" w={'full'}>
-                  <Text fontSize={'xl'} as={'b'}>Second Address</Text>
+                </VStack>}
+                {selectedAddress == 2 && <VStack spacing={4} align="flex-start" w={'full'}>
+                  <Text fontSize={'xl'} as={'b'}>Address 2</Text>
                   <FormControl isInvalid={!!errors.password && touched.password}>
                     <FormLabel htmlFor="userAddr1">Address Line 1</FormLabel>
                     <Field
@@ -181,7 +184,6 @@ export default function UserForm() {
                       type="userAddr1"
                       variant="filled"
                       placeholder="Address Line 1"
-
                     />
                   </FormControl>
                   <FormControl isInvalid={!!errors.password && touched.password}>
@@ -265,7 +267,7 @@ export default function UserForm() {
                       </FormControl>
                     </GridItem>
                   </Grid>
-                </VStack>
+                </VStack>}
                 {/* <VStack spacing={4} align="flex-start" w={'full'}>
                   <Text fontSize={'xl'} as={'b'}>Shipping Time</Text>
                   <TableContainer

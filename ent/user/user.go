@@ -76,6 +76,4 @@ var (
 	DefaultInstructions []string
 	// DefaultNotifications holds the default value on creation for the "notifications" field.
 	DefaultNotifications [4]bool
-	// IDValidator is a validator for the "id" field. It is called by the builders before save.
-	IDValidator func(string) error
 )

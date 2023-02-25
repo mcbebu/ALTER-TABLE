@@ -14,7 +14,6 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").NotEmpty().Unique().Immutable(),
 		field.String("mobileNumber").NotEmpty().Unique().Immutable(),
 		field.JSON("addresses", []Address{}).Default([]Address{}),
 		field.Bool("leaveParcel").Default(false),

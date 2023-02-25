@@ -59,12 +59,6 @@ func (uc *UserCreate) SetNotifications(b [4]bool) *UserCreate {
 	return uc
 }
 
-// SetID sets the "id" field.
-func (uc *UserCreate) SetID(s string) *UserCreate {
-	uc.mutation.SetID(s)
-	return uc
-}
-
 // SetOrdersID sets the "orders" edge to the Order entity by ID.
 func (uc *UserCreate) SetOrdersID(id int) *UserCreate {
 	uc.mutation.SetOrdersID(id)
@@ -159,11 +153,6 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Notifications(); !ok {
 		return &ValidationError{Name: "notifications", err: errors.New(`ent: missing required field "User.notifications"`)}
 	}
-	if v, ok := uc.mutation.ID(); ok {
-		if err := user.IDValidator(v); err != nil {
-			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "User.id": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -178,13 +167,8 @@ func (uc *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected User.ID type: %T", _spec.ID.Value)
-		}
-	}
+	id := _spec.ID.Value.(int64)
+	_node.ID = int(id)
 	uc.mutation.id = &_node.ID
 	uc.mutation.done = true
 	return _node, nil
@@ -193,12 +177,8 @@ func (uc *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	var (
 		_node = &User{config: uc.config}
-		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
 	)
-	if id, ok := uc.mutation.ID(); ok {
-		_node.ID = id
-		_spec.ID.Value = id
-	}
 	if value, ok := uc.mutation.MobileNumber(); ok {
 		_spec.SetField(user.FieldMobileNumber, field.TypeString, value)
 		_node.MobileNumber = value
@@ -283,6 +263,10 @@ func (ucb *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
