@@ -90,6 +90,7 @@ export default function OrderedList() {
       enabled: !!user,
     }
   );
+  console.log(data)
   const { data: userdata, isUserSuccess } = useQuery(
     ["get-user"],
     async () => getUser(await user.getIdToken()),
@@ -158,29 +159,30 @@ export default function OrderedList() {
             {data[props.index].status === "On the way" ||
             data[props.index].status === "Delivered" ||
             !editing ? (
-              <Card w={400} h={"100%"}>
+              <Card w={data[props.index].status==="On the way" ? 450 : 400} h={"100%"} 
+                boxShadow={data[props.index].status==="On the way" ? "2xl" : "none"}>
                 <CardHeader bg="gray.300">
-                  <Center>
-                    <Kbd bg={mapColor(data[props.index].status)}>
-                      {data[props.index].status}
-                    </Kbd>
-                  </Center>
-                  <Center>
-                    <VStack>
-                      <Text fontSize="20px" fontWeight="semibold">
-                        Tracking id
-                      </Text>
-                      <Kbd m={0}>{data[props.index].id}</Kbd>
-                      <br />
-                    </VStack>
-                  </Center>
+                    <Center m='auto'>
+                      <HStack spacing={10}>
+                        <Kbd bg={mapColor(data[props.index].status)}>
+                          {data[props.index].status}
+                        </Kbd>
+                        {data[props.index].status==="On the way" && <HStack fontSize='14px'><VStack><Kbd fontSize='16px'>{data[props.index].estimatedArrivalTime} mins</Kbd><Kbd fontSize='16px'>{data[props.index].stopsUntilDelivery} stops</Kbd></VStack></HStack>}
+                        <Box>
+                          <Text fontSize="14px" fontWeight="semibold">
+                            Tracking id
+                          </Text>
+                          <Center><Kbd m={0}>{data[props.index].id}</Kbd></Center>
+                        </Box>
+                      </HStack>
+                    </Center>
+                </CardHeader>
+                <CardBody>
                   <Center>
                     <Text fontSize="20px" fontWeight="bold">
                       {data[props.index].title}
                     </Text>
                   </Center>
-                </CardHeader>
-                <CardBody>
                   <Text fontSize="20px" fontWeight="semibold">
                     Address
                   </Text>
@@ -234,16 +236,16 @@ export default function OrderedList() {
                   data[props.index].status === "Delivered") && (
                   <Popover>
                     <PopoverTrigger>
-                      <Button colorScheme="blue" type="submit">
-                        Edit Information
+                      <Button colorScheme="red" type="submit">
+                        Cannot Receive Parcel?
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent>
                       <PopoverArrow />
                       <PopoverCloseButton />
-                      <PopoverHeader> Cannot Edit Information</PopoverHeader>
+                      <PopoverHeader bg='red.600' color='white'>Change delivery date</PopoverHeader>
                       <PopoverBody>
-                        The parcel is already on the way.
+                        Click Me!
                       </PopoverBody>
                     </PopoverContent>
                   </Popover>
@@ -418,7 +420,7 @@ export default function OrderedList() {
         <h1>
           <Header currentUser={user} logOut={logOut} />
           <SimpleGrid
-            spacingY={4}
+            spacingY={2}
             mt={6}
             columns={{ sm: 1, lg: 2, xl: 3, "2xl": 4 }}
           >
