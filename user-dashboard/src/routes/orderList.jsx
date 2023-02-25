@@ -77,6 +77,7 @@ const dummyData = [
 
 export default function OrderedList() {
   const [user] = useAuthState(auth);
+  console.log(user)
   const navigate = useNavigate();
   const [data, setData] = useState(dummyData);
   const logOut = () => {
