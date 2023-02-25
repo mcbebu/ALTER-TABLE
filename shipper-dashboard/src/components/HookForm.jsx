@@ -15,8 +15,8 @@ import {
 
 export default function HookForm() {
   return (
-    <Flex bg="gray.100" align="center" justify="center" pt='0em' h='90vh'>
-      <Box bg="white" p={6} rounded="md" w={64}>
+    <Flex bg="gray.100" align="center" justify="center" pt='0em'>
+      <Box bg="white" p={6} rounded="md" w={96}>
         <Formik
           initialValues={{
             name: "",
@@ -27,6 +27,10 @@ export default function HookForm() {
             postalCode: "",
             mobileNumber: "",
             title: "",
+            intructions: "",
+            description: "",
+            dims: "",
+            weight: "",
           }}
           onSubmit={(values) => {
             alert(JSON.stringify(values, null, 2));
@@ -36,14 +40,37 @@ export default function HookForm() {
             <form onSubmit={handleSubmit}>
               <VStack spacing={4} align="flex-start">
                 <FormControl>
-                  <FormLabel htmlFor="title">Parcel Name</FormLabel>
+                    <Text fontSize='20px' fontWeight='semibold'>Parcel Details</Text>
+                    <FormLabel htmlFor="title">Parcel Name</FormLabel>
+                    <Field
+                        as={Input}
+                        id="title"
+                        name="title"
+                        type="title"
+                        variant="filled"
+                        placeholder="Keyboard"
+                    />
+                </FormControl>
+                <FormControl>
+                  <FormLabel htmlFor="dims">Dimension</FormLabel>
                   <Field
                     as={Input}
-                    id="title"
-                    name="title"
-                    type="title"
+                    id="dims"
+                    name="dims"
+                    type="dims"
                     variant="filled"
-                    placeholder="Keyboard"
+                    placeholder="10x30 cm"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel htmlFor="weight">Weight</FormLabel>
+                  <Field
+                    as={Input}
+                    id="weight"
+                    name="weight"
+                    type="weight"
+                    variant="filled"
+                    placeholder="10 g"
                   />
                 </FormControl>
                 <FormControl>
@@ -107,6 +134,15 @@ export default function HookForm() {
                   />
                   <FormErrorMessage>{errors.password}</FormErrorMessage>
                 </FormControl>
+                <FormLabel htmlFor="intructions">Delivery Instruction(s)</FormLabel>
+                  <Field
+                    as={Input}
+                    id="intructions"
+                    name="intructions"
+                    type="intructions"
+                    variant="filled"
+                    placeholder="Leave the parcel at the door"
+                  />
                 <Button type="submit" colorScheme="purple" width="full">
                   Create Order
                 </Button>
