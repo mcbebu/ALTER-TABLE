@@ -4,6 +4,7 @@ import {
   Text,
   Button,
   Image,
+  Center,
 } from '@chakra-ui/react';
 import { useNavigate } from "react-router-dom";
 import PhoneNumberInput from './../components/phoneNumberInput';
@@ -12,7 +13,7 @@ import { COUNTRIES } from "../components/countries";
 import cover from '../images/cover.png';
 import OtpInput from "../components/otpInput";
 
-import { auth } from "../../firebase";
+import { auth, appSignIn } from "../../firebase";
 import { onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 export default function Login() {
@@ -38,18 +39,9 @@ export default function Login() {
   //   }
   // });
 
-  const activateRecaptcha = () => {
-    const recaptchaVerifier = new RecaptchaVerifier('recaptcha_container', {}, auth);
-    recaptchaVerifier.render();
-    signInWithPhoneNumber(auth, value, recaptchaVerifier).then((result) => {
-      setfinal(result);
-      setshow(true);
-    })
-      .catch((err) => {
-        window.recaptchaVerifier.render().then(function (widgetId) {
-          grecaptcha.reset(widgetId);
-        });
-      });
+  const signIn = async () => {
+    setfinal(await appSignIn(value));
+    setshow(true);
   }
 
   const checkOtp = () => {
@@ -71,8 +63,7 @@ export default function Login() {
           placeholder="Enter phone number"
           onChange={value => setValue(value)}
         /><br />
-          <div id="recaptcha_container"></div>
-          <Button w={'80%'} colorScheme="red" onClick={activateRecaptcha}>Verify</Button><br /></Box>
+          <Button w={'80%'} colorScheme="red" id='sign-in-button' onClick={signIn}>Verify</Button><br /></Box>
         : <Box><OtpInput
           updateOtp={updateOtp}
         />
