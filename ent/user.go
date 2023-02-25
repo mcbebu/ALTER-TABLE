@@ -17,7 +17,7 @@ import (
 type User struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
 	// MobileNumber holds the value of the "mobileNumber" field.
 	MobileNumber string `json:"mobileNumber,omitempty"`
 	// Addresses holds the value of the "addresses" field.
@@ -65,7 +65,9 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case user.FieldLeaveParcel:
 			values[i] = new(sql.NullBool)
-		case user.FieldID, user.FieldMobileNumber:
+		case user.FieldID:
+			values[i] = new(sql.NullInt64)
+		case user.FieldMobileNumber:
 			values[i] = new(sql.NullString)
 		case user.ForeignKeys[0]: // user_orders
 			values[i] = new(sql.NullInt64)
@@ -85,11 +87,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case user.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				u.ID = value.String
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			u.ID = int(value.Int64)
 		case user.FieldMobileNumber:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field mobileNumber", values[i])
