@@ -16,7 +16,7 @@ import {
 export default function HookForm() {
   return (
     <Flex bg="gray.100" align="center" justify="center" pt='0em'>
-      <Box bg="white" p={6} rounded="md" w={96}>
+      <Box bg="white" p={6} rounded="md" w={300}>
         <Formik
           initialValues={{
             name: "",
