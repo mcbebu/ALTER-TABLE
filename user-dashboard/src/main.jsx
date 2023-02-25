@@ -12,7 +12,9 @@ import Home from './routes/home'
 import Login from './routes/login';
 import OrderList from './routes/orderList'
 import PrivateRoute from './routes/privateRoute';
+import { QueryClientProvider, QueryClient} from '@tanstack/react-query'
 
+const queryClient = new QueryClient()
 const router = createBrowserRouter([
   {
     path: "/",
@@ -41,10 +43,13 @@ const router = createBrowserRouter([
   },
 ]);
 
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ChakraProvider>
-      <RouterProvider router={router} />
-    </ChakraProvider>
+    <QueryClientProvider client={queryClient}>
+      <ChakraProvider>
+        <RouterProvider router={router} />
+      </ChakraProvider>
+    </QueryClientProvider>
   </React.StrictMode>,
 )

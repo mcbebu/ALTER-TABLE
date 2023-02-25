@@ -18,10 +18,56 @@ import {
   Checkbox,
   CheckboxGroup,
 } from "@chakra-ui/react";
+import axios from "axios";
+
+import {useAuthState} from 'react-firebase-hooks/auth'
+import { auth } from '../../firebase'
+import {useQuery} from '@tanstack/react-query'
+
+const getUserData = async (idToken) => {
+  const {data} = await axios.get(`${import.meta.env.VITE_SERVER_URL}/user`, {
+    headers: {
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+  return data
+}
 
 export default function UserForm() {
+<<<<<<< HEAD
 
   const [selectedAddress, setAddress] = useState(0);
+=======
+  const [user] = useAuthState(auth);
+  const {data, isSuccess} = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
+    enabled: !!user
+  })
+  console.log("user ", JSON.stringify(user))
+  console.log("read ", JSON.stringify(data));
+  const idxToTime = (index) => {
+    if (index == 0) {
+      return '12AM';
+    }
+    if (index == 12) {
+      return '12PM';
+    }
+    if (index < 12) {
+      return index + 'AM';
+    }
+    return (index - 12) + 'PM';
+  }
+
+  const dummyData = [
+    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
+    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
+    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
+    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
+    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
+    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
+    [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]
+  ]
+  const filteredData = dummyData[0].map((_, colIndex) => dummyData.map(row => row[colIndex]));
+>>>>>>> 00bbc81c7366ce5d8cb9683cde1a1ea855cdb293
 
   return (
     <Flex align="center" justify="center" pt='0em'>

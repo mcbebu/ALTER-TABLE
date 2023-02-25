@@ -51,7 +51,7 @@ var (
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "mobile_number", Type: field.TypeString, Unique: true},
 		{Name: "addresses", Type: field.TypeJSON},
 		{Name: "leave_parcel", Type: field.TypeBool, Default: false},

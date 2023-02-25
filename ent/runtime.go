@@ -51,27 +51,23 @@ func init() {
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescMobileNumber is the schema descriptor for mobileNumber field.
-	userDescMobileNumber := userFields[1].Descriptor()
+	userDescMobileNumber := userFields[0].Descriptor()
 	// user.MobileNumberValidator is a validator for the "mobileNumber" field. It is called by the builders before save.
 	user.MobileNumberValidator = userDescMobileNumber.Validators[0].(func(string) error)
 	// userDescAddresses is the schema descriptor for addresses field.
-	userDescAddresses := userFields[2].Descriptor()
+	userDescAddresses := userFields[1].Descriptor()
 	// user.DefaultAddresses holds the default value on creation for the addresses field.
 	user.DefaultAddresses = userDescAddresses.Default.([]schema.Address)
 	// userDescLeaveParcel is the schema descriptor for leaveParcel field.
-	userDescLeaveParcel := userFields[3].Descriptor()
+	userDescLeaveParcel := userFields[2].Descriptor()
 	// user.DefaultLeaveParcel holds the default value on creation for the leaveParcel field.
 	user.DefaultLeaveParcel = userDescLeaveParcel.Default.(bool)
 	// userDescInstructions is the schema descriptor for instructions field.
-	userDescInstructions := userFields[4].Descriptor()
+	userDescInstructions := userFields[3].Descriptor()
 	// user.DefaultInstructions holds the default value on creation for the instructions field.
 	user.DefaultInstructions = userDescInstructions.Default.([]string)
 	// userDescNotifications is the schema descriptor for notifications field.
-	userDescNotifications := userFields[5].Descriptor()
+	userDescNotifications := userFields[4].Descriptor()
 	// user.DefaultNotifications holds the default value on creation for the notifications field.
 	user.DefaultNotifications = userDescNotifications.Default.([4]bool)
-	// userDescID is the schema descriptor for id field.
-	userDescID := userFields[0].Descriptor()
-	// user.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	user.IDValidator = userDescID.Validators[0].(func(string) error)
 }
