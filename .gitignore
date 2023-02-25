@@ -11,3 +11,6 @@
 *.njsproj
 *.sln
 *.sw?
+
+# Builds
+tmp
