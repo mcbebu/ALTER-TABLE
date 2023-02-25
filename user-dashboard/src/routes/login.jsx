@@ -5,6 +5,7 @@ import {
   Button,
   Image,
   Center,
+  Heading,
 } from '@chakra-ui/react';
 import { useNavigate } from "react-router-dom";
 import PhoneNumberInput from './../components/phoneNumberInput';
