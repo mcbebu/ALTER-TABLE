@@ -12,6 +12,7 @@
 *.sln
 *.sw?
 delivery-data/node_modules/*
+delivery-data/key.csv
 
 # Builds
 tmp

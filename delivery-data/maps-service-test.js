@@ -76,6 +76,7 @@ const findNextPermutation = (data) => {
 let location_data = [];
 let address_ids = [];
 
+let key;
 
 fs.createReadStream("./delivery-data/sample-location.csv")
 	.pipe(parse({ delimiter: ",", from_line: 2}))
@@ -84,12 +85,17 @@ fs.createReadStream("./delivery-data/sample-location.csv")
 		address_ids.push(row[0]);
 	})
 
+fs.createReadStream("./delivery-data/key.csv")
+	.pipe(parse({ delimiter: ",", from_line: 2}))
+	.on("data", (row) => {
+		key = row[0];
+	})
+
 await new Promise(r => setTimeout(r, 2000));
 
 let distance = [];
 let duration = [];
 
-let key = "AIzaSyDg64WEaXKx-ZOBBg_oklSYxpbP3koFp90";
 let origin, destination;
 
 for (let i = 0; i < location_data.length; i++) {
