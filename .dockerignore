@@ -9,6 +9,9 @@ Dockerfile
 # k8s
 k8s
 
+# Path Planning
+delivery-data
+
 # Git
 .git
 
