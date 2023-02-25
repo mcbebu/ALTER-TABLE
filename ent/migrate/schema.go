@@ -13,7 +13,8 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
 		{Name: "title", Type: field.TypeString},
-		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "description", Type: field.TypeString},
+		{Name: "mobile_number", Type: field.TypeString},
 		{Name: "alt_mobile_number", Type: field.TypeString, Nullable: true},
 		{Name: "address", Type: field.TypeJSON},
 		{Name: "leave_parcel", Type: field.TypeBool, Default: false},
@@ -22,56 +23,54 @@ var (
 		{Name: "stops_until_delivery", Type: field.TypeInt, Nullable: true},
 		{Name: "estimated_arrival_time", Type: field.TypeInt, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
+		{Name: "shipper_orders", Type: field.TypeInt, Nullable: true},
+		{Name: "user_orders", Type: field.TypeString, Nullable: true},
 	}
 	// OrdersTable holds the schema information for the "orders" table.
 	OrdersTable = &schema.Table{
 		Name:       "orders",
 		Columns:    OrdersColumns,
 		PrimaryKey: []*schema.Column{OrdersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "orders_shippers_orders",
+				Columns:    []*schema.Column{OrdersColumns[13]},
+				RefColumns: []*schema.Column{ShippersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "orders_users_orders",
+				Columns:    []*schema.Column{OrdersColumns[14]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// ShippersColumns holds the columns for the "shippers" table.
 	ShippersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
-		{Name: "shipper_orders", Type: field.TypeInt, Nullable: true},
 	}
 	// ShippersTable holds the schema information for the "shippers" table.
 	ShippersTable = &schema.Table{
 		Name:       "shippers",
 		Columns:    ShippersColumns,
 		PrimaryKey: []*schema.Column{ShippersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "shippers_orders_orders",
-				Columns:    []*schema.Column{ShippersColumns[2]},
-				RefColumns: []*schema.Column{OrdersColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeString, Unique: true},
 		{Name: "mobile_number", Type: field.TypeString, Unique: true},
 		{Name: "addresses", Type: field.TypeJSON},
 		{Name: "leave_parcel", Type: field.TypeBool, Default: false},
 		{Name: "instructions", Type: field.TypeJSON},
 		{Name: "notifications", Type: field.TypeJSON},
-		{Name: "user_orders", Type: field.TypeInt, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "users_orders_orders",
-				Columns:    []*schema.Column{UsersColumns[6]},
-				RefColumns: []*schema.Column{OrdersColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
@@ -82,6 +81,6 @@ var (
 )
 
 func init() {
-	ShippersTable.ForeignKeys[0].RefTable = OrdersTable
-	UsersTable.ForeignKeys[0].RefTable = OrdersTable
+	OrdersTable.ForeignKeys[0].RefTable = ShippersTable
+	OrdersTable.ForeignKeys[1].RefTable = UsersTable
 }

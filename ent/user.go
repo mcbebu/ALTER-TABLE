@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/mcbebu/ALTER-TABLE/ent/order"
 	"github.com/mcbebu/ALTER-TABLE/ent/schema"
 	"github.com/mcbebu/ALTER-TABLE/ent/user"
 )
@@ -17,7 +16,7 @@ import (
 type User struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 	// MobileNumber holds the value of the "mobileNumber" field.
 	MobileNumber string `json:"mobileNumber,omitempty"`
 	// Addresses holds the value of the "addresses" field.
@@ -30,27 +29,22 @@ type User struct {
 	Notifications [4]bool `json:"notifications,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
-	Edges       UserEdges `json:"edges"`
-	user_orders *int
+	Edges UserEdges `json:"edges"`
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
 	// Orders holds the value of the orders edge.
-	Orders *Order `json:"orders,omitempty"`
+	Orders []*Order `json:"orders,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
 // OrdersOrErr returns the Orders value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) OrdersOrErr() (*Order, error) {
+// was not loaded in eager-loading.
+func (e UserEdges) OrdersOrErr() ([]*Order, error) {
 	if e.loadedTypes[0] {
-		if e.Orders == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: order.Label}
-		}
 		return e.Orders, nil
 	}
 	return nil, &NotLoadedError{edge: "orders"}
@@ -65,12 +59,8 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case user.FieldLeaveParcel:
 			values[i] = new(sql.NullBool)
-		case user.FieldID:
-			values[i] = new(sql.NullInt64)
-		case user.FieldMobileNumber:
+		case user.FieldID, user.FieldMobileNumber:
 			values[i] = new(sql.NullString)
-		case user.ForeignKeys[0]: // user_orders
-			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type User", columns[i])
 		}
@@ -87,11 +77,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case user.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value.Valid {
+				u.ID = value.String
 			}
-			u.ID = int(value.Int64)
 		case user.FieldMobileNumber:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field mobileNumber", values[i])
@@ -127,13 +117,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &u.Notifications); err != nil {
 					return fmt.Errorf("unmarshal field notifications: %w", err)
 				}
-			}
-		case user.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field user_orders", value)
-			} else if value.Valid {
-				u.user_orders = new(int)
-				*u.user_orders = int(value.Int64)
 			}
 		}
 	}

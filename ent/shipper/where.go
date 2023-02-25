@@ -128,7 +128,7 @@ func HasOrders() predicate.Shipper {
 	return predicate.Shipper(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, OrdersTable, OrdersColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, OrdersTable, OrdersColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -140,7 +140,7 @@ func HasOrdersWith(preds ...predicate.Order) predicate.Shipper {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(OrdersInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, OrdersTable, OrdersColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, OrdersTable, OrdersColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

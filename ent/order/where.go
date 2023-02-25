@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/mcbebu/ALTER-TABLE/ent/predicate"
 )
 
@@ -67,6 +68,11 @@ func Title(v string) predicate.Order {
 // Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
 func Description(v string) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldDescription, v))
+}
+
+// MobileNumber applies equality check predicate on the "mobileNumber" field. It's identical to MobileNumberEQ.
+func MobileNumber(v string) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldMobileNumber, v))
 }
 
 // AltMobileNumber applies equality check predicate on the "altMobileNumber" field. It's identical to AltMobileNumberEQ.
@@ -279,16 +285,6 @@ func DescriptionHasSuffix(v string) predicate.Order {
 	return predicate.Order(sql.FieldHasSuffix(FieldDescription, v))
 }
 
-// DescriptionIsNil applies the IsNil predicate on the "description" field.
-func DescriptionIsNil() predicate.Order {
-	return predicate.Order(sql.FieldIsNull(FieldDescription))
-}
-
-// DescriptionNotNil applies the NotNil predicate on the "description" field.
-func DescriptionNotNil() predicate.Order {
-	return predicate.Order(sql.FieldNotNull(FieldDescription))
-}
-
 // DescriptionEqualFold applies the EqualFold predicate on the "description" field.
 func DescriptionEqualFold(v string) predicate.Order {
 	return predicate.Order(sql.FieldEqualFold(FieldDescription, v))
@@ -297,6 +293,71 @@ func DescriptionEqualFold(v string) predicate.Order {
 // DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
 func DescriptionContainsFold(v string) predicate.Order {
 	return predicate.Order(sql.FieldContainsFold(FieldDescription, v))
+}
+
+// MobileNumberEQ applies the EQ predicate on the "mobileNumber" field.
+func MobileNumberEQ(v string) predicate.Order {
+	return predicate.Order(sql.FieldEQ(FieldMobileNumber, v))
+}
+
+// MobileNumberNEQ applies the NEQ predicate on the "mobileNumber" field.
+func MobileNumberNEQ(v string) predicate.Order {
+	return predicate.Order(sql.FieldNEQ(FieldMobileNumber, v))
+}
+
+// MobileNumberIn applies the In predicate on the "mobileNumber" field.
+func MobileNumberIn(vs ...string) predicate.Order {
+	return predicate.Order(sql.FieldIn(FieldMobileNumber, vs...))
+}
+
+// MobileNumberNotIn applies the NotIn predicate on the "mobileNumber" field.
+func MobileNumberNotIn(vs ...string) predicate.Order {
+	return predicate.Order(sql.FieldNotIn(FieldMobileNumber, vs...))
+}
+
+// MobileNumberGT applies the GT predicate on the "mobileNumber" field.
+func MobileNumberGT(v string) predicate.Order {
+	return predicate.Order(sql.FieldGT(FieldMobileNumber, v))
+}
+
+// MobileNumberGTE applies the GTE predicate on the "mobileNumber" field.
+func MobileNumberGTE(v string) predicate.Order {
+	return predicate.Order(sql.FieldGTE(FieldMobileNumber, v))
+}
+
+// MobileNumberLT applies the LT predicate on the "mobileNumber" field.
+func MobileNumberLT(v string) predicate.Order {
+	return predicate.Order(sql.FieldLT(FieldMobileNumber, v))
+}
+
+// MobileNumberLTE applies the LTE predicate on the "mobileNumber" field.
+func MobileNumberLTE(v string) predicate.Order {
+	return predicate.Order(sql.FieldLTE(FieldMobileNumber, v))
+}
+
+// MobileNumberContains applies the Contains predicate on the "mobileNumber" field.
+func MobileNumberContains(v string) predicate.Order {
+	return predicate.Order(sql.FieldContains(FieldMobileNumber, v))
+}
+
+// MobileNumberHasPrefix applies the HasPrefix predicate on the "mobileNumber" field.
+func MobileNumberHasPrefix(v string) predicate.Order {
+	return predicate.Order(sql.FieldHasPrefix(FieldMobileNumber, v))
+}
+
+// MobileNumberHasSuffix applies the HasSuffix predicate on the "mobileNumber" field.
+func MobileNumberHasSuffix(v string) predicate.Order {
+	return predicate.Order(sql.FieldHasSuffix(FieldMobileNumber, v))
+}
+
+// MobileNumberEqualFold applies the EqualFold predicate on the "mobileNumber" field.
+func MobileNumberEqualFold(v string) predicate.Order {
+	return predicate.Order(sql.FieldEqualFold(FieldMobileNumber, v))
+}
+
+// MobileNumberContainsFold applies the ContainsFold predicate on the "mobileNumber" field.
+func MobileNumberContainsFold(v string) predicate.Order {
+	return predicate.Order(sql.FieldContainsFold(FieldMobileNumber, v))
 }
 
 // AltMobileNumberEQ applies the EQ predicate on the "altMobileNumber" field.
@@ -542,6 +603,33 @@ func CreatedAtLT(v time.Time) predicate.Order {
 // CreatedAtLTE applies the LTE predicate on the "createdAt" field.
 func CreatedAtLTE(v time.Time) predicate.Order {
 	return predicate.Order(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// HasShippers applies the HasEdge predicate on the "shippers" edge.
+func HasShippers() predicate.Order {
+	return predicate.Order(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ShippersTable, ShippersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasShippersWith applies the HasEdge predicate on the "shippers" edge with a given conditions (other predicates).
+func HasShippersWith(preds ...predicate.Shipper) predicate.Order {
+	return predicate.Order(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ShippersInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ShippersTable, ShippersColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

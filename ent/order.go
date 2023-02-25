@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/mcbebu/ALTER-TABLE/ent/order"
 	"github.com/mcbebu/ALTER-TABLE/ent/schema"
+	"github.com/mcbebu/ALTER-TABLE/ent/shipper"
 )
 
 // Order is the model entity for the Order schema.
@@ -24,6 +25,8 @@ type Order struct {
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
+	// MobileNumber holds the value of the "mobileNumber" field.
+	MobileNumber string `json:"mobileNumber,omitempty"`
 	// AltMobileNumber holds the value of the "altMobileNumber" field.
 	AltMobileNumber string `json:"altMobileNumber,omitempty"`
 	// Address holds the value of the "address" field.
@@ -40,6 +43,33 @@ type Order struct {
 	EstimatedArrivalTime int `json:"estimatedArrivalTime,omitempty"`
 	// CreatedAt holds the value of the "createdAt" field.
 	CreatedAt time.Time `json:"createdAt,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the OrderQuery when eager-loading is set.
+	Edges          OrderEdges `json:"edges"`
+	shipper_orders *int
+	user_orders    *string
+}
+
+// OrderEdges holds the relations/edges for other nodes in the graph.
+type OrderEdges struct {
+	// Shippers holds the value of the shippers edge.
+	Shippers *Shipper `json:"shippers,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// ShippersOrErr returns the Shippers value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e OrderEdges) ShippersOrErr() (*Shipper, error) {
+	if e.loadedTypes[0] {
+		if e.Shippers == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: shipper.Label}
+		}
+		return e.Shippers, nil
+	}
+	return nil, &NotLoadedError{edge: "shippers"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -53,10 +83,14 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case order.FieldID, order.FieldStopsUntilDelivery, order.FieldEstimatedArrivalTime:
 			values[i] = new(sql.NullInt64)
-		case order.FieldName, order.FieldTitle, order.FieldDescription, order.FieldAltMobileNumber, order.FieldStatus:
+		case order.FieldName, order.FieldTitle, order.FieldDescription, order.FieldMobileNumber, order.FieldAltMobileNumber, order.FieldStatus:
 			values[i] = new(sql.NullString)
 		case order.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
+		case order.ForeignKeys[0]: // shipper_orders
+			values[i] = new(sql.NullInt64)
+		case order.ForeignKeys[1]: // user_orders
+			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Order", columns[i])
 		}
@@ -95,6 +129,12 @@ func (o *Order) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
 				o.Description = value.String
+			}
+		case order.FieldMobileNumber:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field mobileNumber", values[i])
+			} else if value.Valid {
+				o.MobileNumber = value.String
 			}
 		case order.FieldAltMobileNumber:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -148,9 +188,28 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				o.CreatedAt = value.Time
 			}
+		case order.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field shipper_orders", value)
+			} else if value.Valid {
+				o.shipper_orders = new(int)
+				*o.shipper_orders = int(value.Int64)
+			}
+		case order.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field user_orders", values[i])
+			} else if value.Valid {
+				o.user_orders = new(string)
+				*o.user_orders = value.String
+			}
 		}
 	}
 	return nil
+}
+
+// QueryShippers queries the "shippers" edge of the Order entity.
+func (o *Order) QueryShippers() *ShipperQuery {
+	return NewOrderClient(o.config).QueryShippers(o)
 }
 
 // Update returns a builder for updating this Order.
@@ -184,6 +243,9 @@ func (o *Order) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(o.Description)
+	builder.WriteString(", ")
+	builder.WriteString("mobileNumber=")
+	builder.WriteString(o.MobileNumber)
 	builder.WriteString(", ")
 	builder.WriteString("altMobileNumber=")
 	builder.WriteString(o.AltMobileNumber)

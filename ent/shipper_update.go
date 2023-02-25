@@ -28,23 +28,25 @@ func (su *ShipperUpdate) Where(ps ...predicate.Shipper) *ShipperUpdate {
 	return su
 }
 
-// SetOrdersID sets the "orders" edge to the Order entity by ID.
-func (su *ShipperUpdate) SetOrdersID(id int) *ShipperUpdate {
-	su.mutation.SetOrdersID(id)
+// SetName sets the "name" field.
+func (su *ShipperUpdate) SetName(s string) *ShipperUpdate {
+	su.mutation.SetName(s)
 	return su
 }
 
-// SetNillableOrdersID sets the "orders" edge to the Order entity by ID if the given value is not nil.
-func (su *ShipperUpdate) SetNillableOrdersID(id *int) *ShipperUpdate {
-	if id != nil {
-		su = su.SetOrdersID(*id)
+// AddOrderIDs adds the "orders" edge to the Order entity by IDs.
+func (su *ShipperUpdate) AddOrderIDs(ids ...int) *ShipperUpdate {
+	su.mutation.AddOrderIDs(ids...)
+	return su
+}
+
+// AddOrders adds the "orders" edges to the Order entity.
+func (su *ShipperUpdate) AddOrders(o ...*Order) *ShipperUpdate {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
 	}
-	return su
-}
-
-// SetOrders sets the "orders" edge to the Order entity.
-func (su *ShipperUpdate) SetOrders(o *Order) *ShipperUpdate {
-	return su.SetOrdersID(o.ID)
+	return su.AddOrderIDs(ids...)
 }
 
 // Mutation returns the ShipperMutation object of the builder.
@@ -52,10 +54,25 @@ func (su *ShipperUpdate) Mutation() *ShipperMutation {
 	return su.mutation
 }
 
-// ClearOrders clears the "orders" edge to the Order entity.
+// ClearOrders clears all "orders" edges to the Order entity.
 func (su *ShipperUpdate) ClearOrders() *ShipperUpdate {
 	su.mutation.ClearOrders()
 	return su
+}
+
+// RemoveOrderIDs removes the "orders" edge to Order entities by IDs.
+func (su *ShipperUpdate) RemoveOrderIDs(ids ...int) *ShipperUpdate {
+	su.mutation.RemoveOrderIDs(ids...)
+	return su
+}
+
+// RemoveOrders removes "orders" edges to Order entities.
+func (su *ShipperUpdate) RemoveOrders(o ...*Order) *ShipperUpdate {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return su.RemoveOrderIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -85,7 +102,20 @@ func (su *ShipperUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (su *ShipperUpdate) check() error {
+	if v, ok := su.mutation.Name(); ok {
+		if err := shipper.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Shipper.name": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (su *ShipperUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := su.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(shipper.Table, shipper.Columns, sqlgraph.NewFieldSpec(shipper.FieldID, field.TypeInt))
 	if ps := su.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -94,9 +124,12 @@ func (su *ShipperUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := su.mutation.Name(); ok {
+		_spec.SetField(shipper.FieldName, field.TypeString, value)
+	}
 	if su.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   shipper.OrdersTable,
 			Columns: []string{shipper.OrdersColumn},
@@ -110,9 +143,28 @@ func (su *ShipperUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := su.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !su.mutation.OrdersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   shipper.OrdersTable,
+			Columns: []string{shipper.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: order.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := su.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   shipper.OrdersTable,
 			Columns: []string{shipper.OrdersColumn},
@@ -149,23 +201,25 @@ type ShipperUpdateOne struct {
 	mutation *ShipperMutation
 }
 
-// SetOrdersID sets the "orders" edge to the Order entity by ID.
-func (suo *ShipperUpdateOne) SetOrdersID(id int) *ShipperUpdateOne {
-	suo.mutation.SetOrdersID(id)
+// SetName sets the "name" field.
+func (suo *ShipperUpdateOne) SetName(s string) *ShipperUpdateOne {
+	suo.mutation.SetName(s)
 	return suo
 }
 
-// SetNillableOrdersID sets the "orders" edge to the Order entity by ID if the given value is not nil.
-func (suo *ShipperUpdateOne) SetNillableOrdersID(id *int) *ShipperUpdateOne {
-	if id != nil {
-		suo = suo.SetOrdersID(*id)
+// AddOrderIDs adds the "orders" edge to the Order entity by IDs.
+func (suo *ShipperUpdateOne) AddOrderIDs(ids ...int) *ShipperUpdateOne {
+	suo.mutation.AddOrderIDs(ids...)
+	return suo
+}
+
+// AddOrders adds the "orders" edges to the Order entity.
+func (suo *ShipperUpdateOne) AddOrders(o ...*Order) *ShipperUpdateOne {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
 	}
-	return suo
-}
-
-// SetOrders sets the "orders" edge to the Order entity.
-func (suo *ShipperUpdateOne) SetOrders(o *Order) *ShipperUpdateOne {
-	return suo.SetOrdersID(o.ID)
+	return suo.AddOrderIDs(ids...)
 }
 
 // Mutation returns the ShipperMutation object of the builder.
@@ -173,10 +227,25 @@ func (suo *ShipperUpdateOne) Mutation() *ShipperMutation {
 	return suo.mutation
 }
 
-// ClearOrders clears the "orders" edge to the Order entity.
+// ClearOrders clears all "orders" edges to the Order entity.
 func (suo *ShipperUpdateOne) ClearOrders() *ShipperUpdateOne {
 	suo.mutation.ClearOrders()
 	return suo
+}
+
+// RemoveOrderIDs removes the "orders" edge to Order entities by IDs.
+func (suo *ShipperUpdateOne) RemoveOrderIDs(ids ...int) *ShipperUpdateOne {
+	suo.mutation.RemoveOrderIDs(ids...)
+	return suo
+}
+
+// RemoveOrders removes "orders" edges to Order entities.
+func (suo *ShipperUpdateOne) RemoveOrders(o ...*Order) *ShipperUpdateOne {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return suo.RemoveOrderIDs(ids...)
 }
 
 // Where appends a list predicates to the ShipperUpdate builder.
@@ -219,7 +288,20 @@ func (suo *ShipperUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (suo *ShipperUpdateOne) check() error {
+	if v, ok := suo.mutation.Name(); ok {
+		if err := shipper.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Shipper.name": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (suo *ShipperUpdateOne) sqlSave(ctx context.Context) (_node *Shipper, err error) {
+	if err := suo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(shipper.Table, shipper.Columns, sqlgraph.NewFieldSpec(shipper.FieldID, field.TypeInt))
 	id, ok := suo.mutation.ID()
 	if !ok {
@@ -245,9 +327,12 @@ func (suo *ShipperUpdateOne) sqlSave(ctx context.Context) (_node *Shipper, err e
 			}
 		}
 	}
+	if value, ok := suo.mutation.Name(); ok {
+		_spec.SetField(shipper.FieldName, field.TypeString, value)
+	}
 	if suo.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   shipper.OrdersTable,
 			Columns: []string{shipper.OrdersColumn},
@@ -261,9 +346,28 @@ func (suo *ShipperUpdateOne) sqlSave(ctx context.Context) (_node *Shipper, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := suo.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !suo.mutation.OrdersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   shipper.OrdersTable,
+			Columns: []string{shipper.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: order.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := suo.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   shipper.OrdersTable,
 			Columns: []string{shipper.OrdersColumn},

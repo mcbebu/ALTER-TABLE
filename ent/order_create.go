@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/mcbebu/ALTER-TABLE/ent/order"
 	"github.com/mcbebu/ALTER-TABLE/ent/schema"
+	"github.com/mcbebu/ALTER-TABLE/ent/shipper"
 )
 
 // OrderCreate is the builder for creating a Order entity.
@@ -39,11 +40,9 @@ func (oc *OrderCreate) SetDescription(s string) *OrderCreate {
 	return oc
 }
 
-// SetNillableDescription sets the "description" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableDescription(s *string) *OrderCreate {
-	if s != nil {
-		oc.SetDescription(*s)
-	}
+// SetMobileNumber sets the "mobileNumber" field.
+func (oc *OrderCreate) SetMobileNumber(s string) *OrderCreate {
+	oc.mutation.SetMobileNumber(s)
 	return oc
 }
 
@@ -151,6 +150,25 @@ func (oc *OrderCreate) SetNillableCreatedAt(t *time.Time) *OrderCreate {
 	return oc
 }
 
+// SetShippersID sets the "shippers" edge to the Shipper entity by ID.
+func (oc *OrderCreate) SetShippersID(id int) *OrderCreate {
+	oc.mutation.SetShippersID(id)
+	return oc
+}
+
+// SetNillableShippersID sets the "shippers" edge to the Shipper entity by ID if the given value is not nil.
+func (oc *OrderCreate) SetNillableShippersID(id *int) *OrderCreate {
+	if id != nil {
+		oc = oc.SetShippersID(*id)
+	}
+	return oc
+}
+
+// SetShippers sets the "shippers" edge to the Shipper entity.
+func (oc *OrderCreate) SetShippers(s *Shipper) *OrderCreate {
+	return oc.SetShippersID(s.ID)
+}
+
 // Mutation returns the OrderMutation object of the builder.
 func (oc *OrderCreate) Mutation() *OrderMutation {
 	return oc.mutation
@@ -226,6 +244,17 @@ func (oc *OrderCreate) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Order.title": %w`, err)}
 		}
 	}
+	if _, ok := oc.mutation.Description(); !ok {
+		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Order.description"`)}
+	}
+	if _, ok := oc.mutation.MobileNumber(); !ok {
+		return &ValidationError{Name: "mobileNumber", err: errors.New(`ent: missing required field "Order.mobileNumber"`)}
+	}
+	if v, ok := oc.mutation.MobileNumber(); ok {
+		if err := order.MobileNumberValidator(v); err != nil {
+			return &ValidationError{Name: "mobileNumber", err: fmt.Errorf(`ent: validator failed for field "Order.mobileNumber": %w`, err)}
+		}
+	}
 	if _, ok := oc.mutation.Address(); !ok {
 		return &ValidationError{Name: "address", err: errors.New(`ent: missing required field "Order.address"`)}
 	}
@@ -294,6 +323,10 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 		_spec.SetField(order.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
+	if value, ok := oc.mutation.MobileNumber(); ok {
+		_spec.SetField(order.FieldMobileNumber, field.TypeString, value)
+		_node.MobileNumber = value
+	}
 	if value, ok := oc.mutation.AltMobileNumber(); ok {
 		_spec.SetField(order.FieldAltMobileNumber, field.TypeString, value)
 		_node.AltMobileNumber = value
@@ -325,6 +358,26 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := oc.mutation.CreatedAt(); ok {
 		_spec.SetField(order.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if nodes := oc.mutation.ShippersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   order.ShippersTable,
+			Columns: []string{order.ShippersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: shipper.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.shipper_orders = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

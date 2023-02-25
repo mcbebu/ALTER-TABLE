@@ -14,6 +14,7 @@ import (
 	"github.com/mcbebu/ALTER-TABLE/ent/order"
 	"github.com/mcbebu/ALTER-TABLE/ent/predicate"
 	"github.com/mcbebu/ALTER-TABLE/ent/schema"
+	"github.com/mcbebu/ALTER-TABLE/ent/shipper"
 )
 
 // OrderUpdate is the builder for updating Order entities.
@@ -26,38 +27,6 @@ type OrderUpdate struct {
 // Where appends a list predicates to the OrderUpdate builder.
 func (ou *OrderUpdate) Where(ps ...predicate.Order) *OrderUpdate {
 	ou.mutation.Where(ps...)
-	return ou
-}
-
-// SetName sets the "name" field.
-func (ou *OrderUpdate) SetName(s string) *OrderUpdate {
-	ou.mutation.SetName(s)
-	return ou
-}
-
-// SetTitle sets the "title" field.
-func (ou *OrderUpdate) SetTitle(s string) *OrderUpdate {
-	ou.mutation.SetTitle(s)
-	return ou
-}
-
-// SetDescription sets the "description" field.
-func (ou *OrderUpdate) SetDescription(s string) *OrderUpdate {
-	ou.mutation.SetDescription(s)
-	return ou
-}
-
-// SetNillableDescription sets the "description" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableDescription(s *string) *OrderUpdate {
-	if s != nil {
-		ou.SetDescription(*s)
-	}
-	return ou
-}
-
-// ClearDescription clears the value of the "description" field.
-func (ou *OrderUpdate) ClearDescription() *OrderUpdate {
-	ou.mutation.ClearDescription()
 	return ou
 }
 
@@ -189,9 +158,34 @@ func (ou *OrderUpdate) ClearEstimatedArrivalTime() *OrderUpdate {
 	return ou
 }
 
+// SetShippersID sets the "shippers" edge to the Shipper entity by ID.
+func (ou *OrderUpdate) SetShippersID(id int) *OrderUpdate {
+	ou.mutation.SetShippersID(id)
+	return ou
+}
+
+// SetNillableShippersID sets the "shippers" edge to the Shipper entity by ID if the given value is not nil.
+func (ou *OrderUpdate) SetNillableShippersID(id *int) *OrderUpdate {
+	if id != nil {
+		ou = ou.SetShippersID(*id)
+	}
+	return ou
+}
+
+// SetShippers sets the "shippers" edge to the Shipper entity.
+func (ou *OrderUpdate) SetShippers(s *Shipper) *OrderUpdate {
+	return ou.SetShippersID(s.ID)
+}
+
 // Mutation returns the OrderMutation object of the builder.
 func (ou *OrderUpdate) Mutation() *OrderMutation {
 	return ou.mutation
+}
+
+// ClearShippers clears the "shippers" edge to the Shipper entity.
+func (ou *OrderUpdate) ClearShippers() *OrderUpdate {
+	ou.mutation.ClearShippers()
+	return ou
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -223,16 +217,6 @@ func (ou *OrderUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (ou *OrderUpdate) check() error {
-	if v, ok := ou.mutation.Name(); ok {
-		if err := order.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Order.name": %w`, err)}
-		}
-	}
-	if v, ok := ou.mutation.Title(); ok {
-		if err := order.TitleValidator(v); err != nil {
-			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Order.title": %w`, err)}
-		}
-	}
 	if v, ok := ou.mutation.Status(); ok {
 		if err := order.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Order.status": %w`, err)}
@@ -262,18 +246,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := ou.mutation.Name(); ok {
-		_spec.SetField(order.FieldName, field.TypeString, value)
-	}
-	if value, ok := ou.mutation.Title(); ok {
-		_spec.SetField(order.FieldTitle, field.TypeString, value)
-	}
-	if value, ok := ou.mutation.Description(); ok {
-		_spec.SetField(order.FieldDescription, field.TypeString, value)
-	}
-	if ou.mutation.DescriptionCleared() {
-		_spec.ClearField(order.FieldDescription, field.TypeString)
 	}
 	if value, ok := ou.mutation.AltMobileNumber(); ok {
 		_spec.SetField(order.FieldAltMobileNumber, field.TypeString, value)
@@ -316,6 +288,41 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if ou.mutation.EstimatedArrivalTimeCleared() {
 		_spec.ClearField(order.FieldEstimatedArrivalTime, field.TypeInt)
 	}
+	if ou.mutation.ShippersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   order.ShippersTable,
+			Columns: []string{order.ShippersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: shipper.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ou.mutation.ShippersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   order.ShippersTable,
+			Columns: []string{order.ShippersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: shipper.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, ou.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{order.Label}
@@ -334,38 +341,6 @@ type OrderUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *OrderMutation
-}
-
-// SetName sets the "name" field.
-func (ouo *OrderUpdateOne) SetName(s string) *OrderUpdateOne {
-	ouo.mutation.SetName(s)
-	return ouo
-}
-
-// SetTitle sets the "title" field.
-func (ouo *OrderUpdateOne) SetTitle(s string) *OrderUpdateOne {
-	ouo.mutation.SetTitle(s)
-	return ouo
-}
-
-// SetDescription sets the "description" field.
-func (ouo *OrderUpdateOne) SetDescription(s string) *OrderUpdateOne {
-	ouo.mutation.SetDescription(s)
-	return ouo
-}
-
-// SetNillableDescription sets the "description" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableDescription(s *string) *OrderUpdateOne {
-	if s != nil {
-		ouo.SetDescription(*s)
-	}
-	return ouo
-}
-
-// ClearDescription clears the value of the "description" field.
-func (ouo *OrderUpdateOne) ClearDescription() *OrderUpdateOne {
-	ouo.mutation.ClearDescription()
-	return ouo
 }
 
 // SetAltMobileNumber sets the "altMobileNumber" field.
@@ -496,9 +471,34 @@ func (ouo *OrderUpdateOne) ClearEstimatedArrivalTime() *OrderUpdateOne {
 	return ouo
 }
 
+// SetShippersID sets the "shippers" edge to the Shipper entity by ID.
+func (ouo *OrderUpdateOne) SetShippersID(id int) *OrderUpdateOne {
+	ouo.mutation.SetShippersID(id)
+	return ouo
+}
+
+// SetNillableShippersID sets the "shippers" edge to the Shipper entity by ID if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableShippersID(id *int) *OrderUpdateOne {
+	if id != nil {
+		ouo = ouo.SetShippersID(*id)
+	}
+	return ouo
+}
+
+// SetShippers sets the "shippers" edge to the Shipper entity.
+func (ouo *OrderUpdateOne) SetShippers(s *Shipper) *OrderUpdateOne {
+	return ouo.SetShippersID(s.ID)
+}
+
 // Mutation returns the OrderMutation object of the builder.
 func (ouo *OrderUpdateOne) Mutation() *OrderMutation {
 	return ouo.mutation
+}
+
+// ClearShippers clears the "shippers" edge to the Shipper entity.
+func (ouo *OrderUpdateOne) ClearShippers() *OrderUpdateOne {
+	ouo.mutation.ClearShippers()
+	return ouo
 }
 
 // Where appends a list predicates to the OrderUpdate builder.
@@ -543,16 +543,6 @@ func (ouo *OrderUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (ouo *OrderUpdateOne) check() error {
-	if v, ok := ouo.mutation.Name(); ok {
-		if err := order.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Order.name": %w`, err)}
-		}
-	}
-	if v, ok := ouo.mutation.Title(); ok {
-		if err := order.TitleValidator(v); err != nil {
-			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Order.title": %w`, err)}
-		}
-	}
 	if v, ok := ouo.mutation.Status(); ok {
 		if err := order.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Order.status": %w`, err)}
@@ -600,18 +590,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 			}
 		}
 	}
-	if value, ok := ouo.mutation.Name(); ok {
-		_spec.SetField(order.FieldName, field.TypeString, value)
-	}
-	if value, ok := ouo.mutation.Title(); ok {
-		_spec.SetField(order.FieldTitle, field.TypeString, value)
-	}
-	if value, ok := ouo.mutation.Description(); ok {
-		_spec.SetField(order.FieldDescription, field.TypeString, value)
-	}
-	if ouo.mutation.DescriptionCleared() {
-		_spec.ClearField(order.FieldDescription, field.TypeString)
-	}
 	if value, ok := ouo.mutation.AltMobileNumber(); ok {
 		_spec.SetField(order.FieldAltMobileNumber, field.TypeString, value)
 	}
@@ -652,6 +630,41 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if ouo.mutation.EstimatedArrivalTimeCleared() {
 		_spec.ClearField(order.FieldEstimatedArrivalTime, field.TypeInt)
+	}
+	if ouo.mutation.ShippersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   order.ShippersTable,
+			Columns: []string{order.ShippersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: shipper.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ouo.mutation.ShippersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   order.ShippersTable,
+			Columns: []string{order.ShippersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: shipper.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Order{config: ouo.config}
 	_spec.Assign = _node.assignValues

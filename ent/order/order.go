@@ -20,6 +20,8 @@ const (
 	FieldTitle = "title"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldMobileNumber holds the string denoting the mobilenumber field in the database.
+	FieldMobileNumber = "mobile_number"
 	// FieldAltMobileNumber holds the string denoting the altmobilenumber field in the database.
 	FieldAltMobileNumber = "alt_mobile_number"
 	// FieldAddress holds the string denoting the address field in the database.
@@ -36,8 +38,17 @@ const (
 	FieldEstimatedArrivalTime = "estimated_arrival_time"
 	// FieldCreatedAt holds the string denoting the createdat field in the database.
 	FieldCreatedAt = "created_at"
+	// EdgeShippers holds the string denoting the shippers edge name in mutations.
+	EdgeShippers = "shippers"
 	// Table holds the table name of the order in the database.
 	Table = "orders"
+	// ShippersTable is the table that holds the shippers relation/edge.
+	ShippersTable = "orders"
+	// ShippersInverseTable is the table name for the Shipper entity.
+	// It exists in this package in order to avoid circular dependency with the "shipper" package.
+	ShippersInverseTable = "shippers"
+	// ShippersColumn is the table column denoting the shippers relation/edge.
+	ShippersColumn = "shipper_orders"
 )
 
 // Columns holds all SQL columns for order fields.
@@ -46,6 +57,7 @@ var Columns = []string{
 	FieldName,
 	FieldTitle,
 	FieldDescription,
+	FieldMobileNumber,
 	FieldAltMobileNumber,
 	FieldAddress,
 	FieldLeaveParcel,
@@ -56,10 +68,22 @@ var Columns = []string{
 	FieldCreatedAt,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "orders"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"shipper_orders",
+	"user_orders",
+}
+
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -71,6 +95,8 @@ var (
 	NameValidator func(string) error
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
+	// MobileNumberValidator is a validator for the "mobileNumber" field. It is called by the builders before save.
+	MobileNumberValidator func(string) error
 	// DefaultAddress holds the default value on creation for the "address" field.
 	DefaultAddress schema.Address
 	// DefaultLeaveParcel holds the default value on creation for the "leaveParcel" field.

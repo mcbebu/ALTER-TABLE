@@ -12,15 +12,18 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/mcbebu/ALTER-TABLE/ent/order"
 	"github.com/mcbebu/ALTER-TABLE/ent/predicate"
+	"github.com/mcbebu/ALTER-TABLE/ent/shipper"
 )
 
 // OrderQuery is the builder for querying Order entities.
 type OrderQuery struct {
 	config
-	ctx        *QueryContext
-	order      []OrderFunc
-	inters     []Interceptor
-	predicates []predicate.Order
+	ctx          *QueryContext
+	order        []OrderFunc
+	inters       []Interceptor
+	predicates   []predicate.Order
+	withShippers *ShipperQuery
+	withFKs      bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -55,6 +58,28 @@ func (oq *OrderQuery) Unique(unique bool) *OrderQuery {
 func (oq *OrderQuery) Order(o ...OrderFunc) *OrderQuery {
 	oq.order = append(oq.order, o...)
 	return oq
+}
+
+// QueryShippers chains the current query on the "shippers" edge.
+func (oq *OrderQuery) QueryShippers() *ShipperQuery {
+	query := (&ShipperClient{config: oq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := oq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := oq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(order.Table, order.FieldID, selector),
+			sqlgraph.To(shipper.Table, shipper.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, order.ShippersTable, order.ShippersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Order entity from the query.
@@ -244,15 +269,27 @@ func (oq *OrderQuery) Clone() *OrderQuery {
 		return nil
 	}
 	return &OrderQuery{
-		config:     oq.config,
-		ctx:        oq.ctx.Clone(),
-		order:      append([]OrderFunc{}, oq.order...),
-		inters:     append([]Interceptor{}, oq.inters...),
-		predicates: append([]predicate.Order{}, oq.predicates...),
+		config:       oq.config,
+		ctx:          oq.ctx.Clone(),
+		order:        append([]OrderFunc{}, oq.order...),
+		inters:       append([]Interceptor{}, oq.inters...),
+		predicates:   append([]predicate.Order{}, oq.predicates...),
+		withShippers: oq.withShippers.Clone(),
 		// clone intermediate query.
 		sql:  oq.sql.Clone(),
 		path: oq.path,
 	}
+}
+
+// WithShippers tells the query-builder to eager-load the nodes that are connected to
+// the "shippers" edge. The optional arguments are used to configure the query builder of the edge.
+func (oq *OrderQuery) WithShippers(opts ...func(*ShipperQuery)) *OrderQuery {
+	query := (&ShipperClient{config: oq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	oq.withShippers = query
+	return oq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -331,15 +368,26 @@ func (oq *OrderQuery) prepareQuery(ctx context.Context) error {
 
 func (oq *OrderQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Order, error) {
 	var (
-		nodes = []*Order{}
-		_spec = oq.querySpec()
+		nodes       = []*Order{}
+		withFKs     = oq.withFKs
+		_spec       = oq.querySpec()
+		loadedTypes = [1]bool{
+			oq.withShippers != nil,
+		}
 	)
+	if oq.withShippers != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, order.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Order).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Order{config: oq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -351,7 +399,46 @@ func (oq *OrderQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Order,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := oq.withShippers; query != nil {
+		if err := oq.loadShippers(ctx, query, nodes, nil,
+			func(n *Order, e *Shipper) { n.Edges.Shippers = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (oq *OrderQuery) loadShippers(ctx context.Context, query *ShipperQuery, nodes []*Order, init func(*Order), assign func(*Order, *Shipper)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Order)
+	for i := range nodes {
+		if nodes[i].shipper_orders == nil {
+			continue
+		}
+		fk := *nodes[i].shipper_orders
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(shipper.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "shipper_orders" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (oq *OrderQuery) sqlCount(ctx context.Context) (int, error) {

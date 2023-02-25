@@ -7,6 +7,7 @@ import (
 
 	"github.com/mcbebu/ALTER-TABLE/ent/order"
 	"github.com/mcbebu/ALTER-TABLE/ent/schema"
+	"github.com/mcbebu/ALTER-TABLE/ent/shipper"
 	"github.com/mcbebu/ALTER-TABLE/ent/user"
 )
 
@@ -24,50 +25,60 @@ func init() {
 	orderDescTitle := orderFields[1].Descriptor()
 	// order.TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	order.TitleValidator = orderDescTitle.Validators[0].(func(string) error)
+	// orderDescMobileNumber is the schema descriptor for mobileNumber field.
+	orderDescMobileNumber := orderFields[3].Descriptor()
+	// order.MobileNumberValidator is a validator for the "mobileNumber" field. It is called by the builders before save.
+	order.MobileNumberValidator = orderDescMobileNumber.Validators[0].(func(string) error)
 	// orderDescAddress is the schema descriptor for address field.
-	orderDescAddress := orderFields[4].Descriptor()
+	orderDescAddress := orderFields[5].Descriptor()
 	// order.DefaultAddress holds the default value on creation for the address field.
 	order.DefaultAddress = orderDescAddress.Default.(schema.Address)
 	// orderDescLeaveParcel is the schema descriptor for leaveParcel field.
-	orderDescLeaveParcel := orderFields[5].Descriptor()
+	orderDescLeaveParcel := orderFields[6].Descriptor()
 	// order.DefaultLeaveParcel holds the default value on creation for the leaveParcel field.
 	order.DefaultLeaveParcel = orderDescLeaveParcel.Default.(bool)
 	// orderDescInstructions is the schema descriptor for instructions field.
-	orderDescInstructions := orderFields[6].Descriptor()
+	orderDescInstructions := orderFields[7].Descriptor()
 	// order.DefaultInstructions holds the default value on creation for the instructions field.
 	order.DefaultInstructions = orderDescInstructions.Default.([]string)
 	// orderDescStopsUntilDelivery is the schema descriptor for stopsUntilDelivery field.
-	orderDescStopsUntilDelivery := orderFields[8].Descriptor()
+	orderDescStopsUntilDelivery := orderFields[9].Descriptor()
 	// order.StopsUntilDeliveryValidator is a validator for the "stopsUntilDelivery" field. It is called by the builders before save.
 	order.StopsUntilDeliveryValidator = orderDescStopsUntilDelivery.Validators[0].(func(int) error)
 	// orderDescEstimatedArrivalTime is the schema descriptor for estimatedArrivalTime field.
-	orderDescEstimatedArrivalTime := orderFields[9].Descriptor()
+	orderDescEstimatedArrivalTime := orderFields[10].Descriptor()
 	// order.EstimatedArrivalTimeValidator is a validator for the "estimatedArrivalTime" field. It is called by the builders before save.
 	order.EstimatedArrivalTimeValidator = orderDescEstimatedArrivalTime.Validators[0].(func(int) error)
 	// orderDescCreatedAt is the schema descriptor for createdAt field.
-	orderDescCreatedAt := orderFields[10].Descriptor()
+	orderDescCreatedAt := orderFields[11].Descriptor()
 	// order.DefaultCreatedAt holds the default value on creation for the createdAt field.
 	order.DefaultCreatedAt = orderDescCreatedAt.Default.(func() time.Time)
+	shipperFields := schema.Shipper{}.Fields()
+	_ = shipperFields
+	// shipperDescName is the schema descriptor for name field.
+	shipperDescName := shipperFields[0].Descriptor()
+	// shipper.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	shipper.NameValidator = shipperDescName.Validators[0].(func(string) error)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescMobileNumber is the schema descriptor for mobileNumber field.
-	userDescMobileNumber := userFields[0].Descriptor()
+	userDescMobileNumber := userFields[1].Descriptor()
 	// user.MobileNumberValidator is a validator for the "mobileNumber" field. It is called by the builders before save.
 	user.MobileNumberValidator = userDescMobileNumber.Validators[0].(func(string) error)
 	// userDescAddresses is the schema descriptor for addresses field.
-	userDescAddresses := userFields[1].Descriptor()
+	userDescAddresses := userFields[2].Descriptor()
 	// user.DefaultAddresses holds the default value on creation for the addresses field.
 	user.DefaultAddresses = userDescAddresses.Default.([]schema.Address)
 	// userDescLeaveParcel is the schema descriptor for leaveParcel field.
-	userDescLeaveParcel := userFields[2].Descriptor()
+	userDescLeaveParcel := userFields[3].Descriptor()
 	// user.DefaultLeaveParcel holds the default value on creation for the leaveParcel field.
 	user.DefaultLeaveParcel = userDescLeaveParcel.Default.(bool)
 	// userDescInstructions is the schema descriptor for instructions field.
-	userDescInstructions := userFields[3].Descriptor()
+	userDescInstructions := userFields[4].Descriptor()
 	// user.DefaultInstructions holds the default value on creation for the instructions field.
 	user.DefaultInstructions = userDescInstructions.Default.([]string)
 	// userDescNotifications is the schema descriptor for notifications field.
-	userDescNotifications := userFields[4].Descriptor()
+	userDescNotifications := userFields[5].Descriptor()
 	// user.DefaultNotifications holds the default value on creation for the notifications field.
 	user.DefaultNotifications = userDescNotifications.Default.([4]bool)
 }
