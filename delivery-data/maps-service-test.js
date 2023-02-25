@@ -120,12 +120,6 @@ let source = 0;
 
 let result = TSP(graph, address_ids, source);
 
-// console.log(result.min_path);
-console.log(result.best_path);
-
-// console.log(distance);
-// console.log(duration);
-
 let cumulativeTime = [];
 let cumulativeDistance = [];
 
@@ -142,9 +136,13 @@ result.best_path = result.best_path.map((e) => parseInt(e));
 cumulativeTime = [0].concat(cumulativeTime);
 cumulativeDistance = [0].concat(cumulativeDistance);
 
-cumulativeTime = cumulativeTime.map((e) => parseInt(e.toFixed(1)));
-cumulativeDistance = cumulativeDistance.map((e) => parseInt(e.toFixed(1)));
+cumulativeTime = cumulativeTime.map((e) => parseFloat(e.toFixed(1)));
+cumulativeDistance = cumulativeDistance.map((e) => parseFloat(e.toFixed(1)));
+
+let order = new Array(result.best_path.length - 1).fill(0);
+for (let i = 0; i < result.best_path.length - 1; i++) order[result.best_path[i]] = i;
 
 console.log(result.best_path);
+console.log(order);
 console.log(cumulativeTime);
 console.log(cumulativeDistance);
