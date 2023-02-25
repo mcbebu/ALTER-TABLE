@@ -4,6 +4,8 @@ import {
   Text,
   Button,
   Image,
+  Center,
+  Heading,
 } from '@chakra-ui/react';
 import { useNavigate } from "react-router-dom";
 import PhoneNumberInput from './../components/phoneNumberInput';
@@ -12,7 +14,7 @@ import { COUNTRIES } from "../components/countries";
 import cover from '../images/cover.png';
 import OtpInput from "../components/otpInput";
 
-import { auth } from "../../firebase";
+import { auth, appSignIn } from "../../firebase";
 import { onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 export default function Login() {
@@ -38,18 +40,9 @@ export default function Login() {
   //   }
   // });
 
-  const activateRecaptcha = () => {
-    const recaptchaVerifier = new RecaptchaVerifier('recaptcha_container', {}, auth);
-    recaptchaVerifier.render();
-    signInWithPhoneNumber(auth, value, recaptchaVerifier).then((result) => {
-      setfinal(result);
-      setshow(true);
-    })
-      .catch((err) => {
-        window.recaptchaVerifier.render().then(function (widgetId) {
-          grecaptcha.reset(widgetId);
-        });
-      });
+  const signIn = async () => {
+    setfinal(await appSignIn(value));
+    setshow(true);
   }
 
   const checkOtp = () => {
@@ -62,21 +55,24 @@ export default function Login() {
   }
   return (
     <Box alignContent={'center'} textAlign={'center'} maxW={800} margin={'auto'}>
-      <Text fontSize='2xl'>Welcome! Please Login</Text>
-      <Image maxW={400} m={'auto'} src={cover} /><br />
+      <Heading as='h1' size='3xl' mt={30} noOfLines={1}>
+        Welcome to MyNinja!
+      </Heading>
+      <Image maxW={400} m={'auto'} mt={30} src={cover} /><br />
       {!show
         ? <Box><PhoneNumberInput
           value={value}
           options={countryOptions}
           placeholder="Enter phone number"
           onChange={value => setValue(value)}
+          w='50%'
+          m='auto'
         /><br />
-          <div id="recaptcha_container"></div>
-          <Button w={'80%'} colorScheme="red" onClick={activateRecaptcha}>Verify</Button><br /></Box>
+          <Button w={'80%'} colorScheme="red" id='sign-in-button' onClick={signIn}>Verify</Button><br /></Box>
         : <Box><OtpInput
           updateOtp={updateOtp}
         />
-          <Button w={'80%'} colorScheme="red" onClick={checkOtp}>Verify</Button></Box>
+          <Button w={'20%'} colorScheme="red" onClick={checkOtp}>Verify</Button></Box>
       }
     </Box >
   )

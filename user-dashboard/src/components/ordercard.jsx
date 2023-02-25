@@ -26,7 +26,9 @@ import {
     PopoverCloseButton,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { Formik, Field } from 'formik'
+import { auth } from '../../firebase'
 
 const mapColor = (status) =>{
     const statArr = ['Order created', 'Picked up', 'On the way', 'Delivered'];
@@ -37,22 +39,19 @@ const mapColor = (status) =>{
 }
 
 const OrderCard = (props) => {
+    const [user] = useAuthState(auth)
     const [editing, setEditing] = useState(0);
     const [leaveParcelVal, setLeaveParcel] = useState(props.data.leaveParcel)
-    const [addressIndex, setAddressIndex] = useState(props.userData.addresses.findIndex((x)=>{console.log(props.data.userAddr1); return x.userAddr1===props.data.userAddrs[0];}));
+    const [addressIndex, setAddressIndex] = useState(props.userData.addresses.findIndex((x)=>{return x.userAddr1===props.data.userAddrs[0];}));
     
     const addressIndexChange = (e) => {
-        console.log(e.target.value)
         setAddressIndex(e.target.value)
-        console.log("current addressindex", addressIndex)
     }
     const leaveParcelChange = (e) => {
         setLeaveParcel(e.target.value)
-        console.log(e.target.value)
     }
     const writeData = (val) => {
         let tempData = props.alldata;
-        // console.log("address", props.userData.addresses[addressIndex].userAddr1)
         const addr = [
             props.userData.addresses[addressIndex].userAddr1, 
             props.userData.addresses[addressIndex].userAddr2, 
@@ -64,7 +63,7 @@ const OrderCard = (props) => {
         tempData[props.index].name=val.name
         tempData[props.index].emailAddr=val.emailAddr
         tempData[props.index].mobileNumber=val.mobileNumber
-        tempData[props.index].instructions=[val.instructions] //
+        tempData[props.index].instructions=[val.instructions]
         tempData[props.index].leaveParcel=leaveParcelVal 
         props.setData(tempData)
     }

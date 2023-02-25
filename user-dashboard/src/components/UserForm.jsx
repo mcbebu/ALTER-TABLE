@@ -29,8 +29,8 @@ const getUserData = async (idToken) => {
     headers: {
       'Authorization': `Bearer ${idToken}`
     }
-  })
-  return data
+  });
+  return data;
 }
 
 
@@ -48,12 +48,14 @@ export default function UserForm() {
   try {
     console.log(data.forEach);
     addresses = data;
+    console.log('hey')
   }
   catch (e) {
     addresses = [];
     addresses.push(data);
+    console.log('hey')
   }
-
+  console.log(addresses);
   const [userAddresses, updateAddress] = useState(addresses);
 
   useEffect(() => {
