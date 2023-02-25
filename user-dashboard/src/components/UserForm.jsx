@@ -25,9 +25,27 @@ import {
   Checkbox,
   CheckboxGroup,
 } from "@chakra-ui/react";
+import axios from "axios";
+
+import {useAuthState} from 'react-firebase-hooks/auth'
+import { auth } from '../../firebase'
+import {useQuery} from '@tanstack/react-query'
+
+const getUserData = async (idToken) => {
+  const {data} = await axios.get(`${import.meta.env.VITE_SERVER_URL}/hello`, {
+    headers: {
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+  return data
+}
 
 export default function UserForm() {
-
+  const [user] = useAuthState(auth);
+  const {data, isSuccess} = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
+    enabled: !!user
+  })
+  console.log("read ", JSON.stringify(user));
   const idxToTime = (index) => {
     if (index == 0) {
       return '12AM';
