@@ -9,6 +9,7 @@ import {
 
 import Home from './routes/home'
 import Login from './routes/login';
+import OrderList from './routes/orderList'
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/order",
+    element: <OrderList />,
   },
 ]);
 
