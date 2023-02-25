@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"firebase.google.com/go/auth"
 	"github.com/joho/godotenv"
@@ -53,12 +52,7 @@ func main() {
 		return c.String(http.StatusOK, "Hello Ninja!")
 	})
 
-	e.GET("/user/:id", func(c echo.Context) error {
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
-
+	e.GET("/user", func(c echo.Context) error {
 		token, ok := c.Get("token").(*auth.Token)
 		if !ok {
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -69,16 +63,12 @@ func main() {
 		u, err := client.User.
 			Query().
 			Where(
-				user.ID(id),
+				user.MobileNumber(phoneNumber),
 			).
 			Only(context.Background())
 
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
-
-		if u.MobileNumber != phoneNumber {
-			return echo.NewHTTPError(http.StatusUnauthorized)
 		}
 
 		return c.JSON(http.StatusOK, u)
@@ -106,12 +96,7 @@ func main() {
 	})
 
 	// update user
-	e.PUT("/user/:id", func(c echo.Context) error {
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
-
+	e.PUT("/user", func(c echo.Context) error {
 		token, ok := c.Get("token").(*auth.Token)
 		if !ok {
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -119,26 +104,21 @@ func main() {
 
 		phoneNumber := token.Claims["phone_number"].(string)
 
-		u, err := client.User.
-			Query().
-			Where(
-				user.ID(id),
-			).
-			Only(context.Background())
-
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
-
-		if u.MobileNumber != phoneNumber {
-			return echo.NewHTTPError(http.StatusUnauthorized)
 		}
 
 		input := new(ent.User)
 		c.Bind(input)
 
-		u, err = client.User.
-			UpdateOneID(id).
+		u, err := client.User.
+			Query().
+			Where(
+				user.MobileNumber(phoneNumber),
+			).
+			Only(context.Background())
+
+		u, err = u.Update().
 			SetAddresses(input.Addresses).
 			SetLeaveParcel(input.LeaveParcel).
 			SetInstructions(input.Instructions).
@@ -152,48 +132,5 @@ func main() {
 		return c.JSON(http.StatusOK, u)
 	})
 
-	// update user
-	e.DELETE("/user/:id", func(c echo.Context) error {
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
-
-		token, ok := c.Get("token").(*auth.Token)
-		if !ok {
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-
-		phoneNumber := token.Claims["phone_number"].(string)
-
-		u, err := client.User.
-			Query().
-			Where(
-				user.ID(id),
-			).
-			Only(context.Background())
-
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
-
-		if u.MobileNumber != phoneNumber {
-			return echo.NewHTTPError(http.StatusUnauthorized)
-		}
-
-		input := new(ent.User)
-		c.Bind(input)
-
-		err = client.User.
-			DeleteOneID(id).
-			Exec(context.Background())
-
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
-
-		return c.JSON(http.StatusOK, u)
-	})
-
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(":30000"))
 }
