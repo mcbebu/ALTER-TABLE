@@ -16,8 +16,10 @@ import {
   useColorModeValue,
   Stack,
   Text,
+  Image,
 } from '@chakra-ui/react';
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
+import logo from '../images/myninja_logo/logo_wht.png';
 
 const Links = ['Dashboard', 'Orders'];
 
@@ -40,18 +42,20 @@ export default function Header({ currentUser, logOut }) {
 
   return (
     <>
-      <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4}>
+      <Box bg={'rgba(35,31,32)'} px={4}>
         <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
-          <IconButton
-            size={'md'}
-            icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
-            aria-label={'Open Menu'}
-            onClick={isOpen ? onClose : onOpen}
-          />
-          <HStack spacing={8} alignItems={'center'}>
-            <Box>MyNinja</Box>
-          </HStack>
-          <Flex alignItems={'center'}>
+          <Flex flex={1} mr={'auto'}>
+            <IconButton
+              size={'md'}
+              icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
+              aria-label={'Open Menu'}
+              onClick={isOpen ? onClose : onOpen}
+            />
+          </Flex>
+          <Flex flex={1} alignItems="center">
+            <Image src={logo} h='3em' m='auto' />
+          </Flex>
+          <Flex flex={1} ml='auto' justify="right">
             <Menu>
               <MenuButton
                 as={Button}
@@ -59,7 +63,7 @@ export default function Header({ currentUser, logOut }) {
                 variant={'link'}
                 cursor={'pointer'}
                 minW={0}>
-                <Text>Currently Logged In As: {currentUser?.phoneNumber}</Text>
+                <Text color='white'>Currently Logged In As: {currentUser?.phoneNumber}</Text>
               </MenuButton>
               <MenuList>
                 <MenuItem>Dashboard</MenuItem>
@@ -71,16 +75,18 @@ export default function Header({ currentUser, logOut }) {
           </Flex>
         </Flex>
 
-        {isOpen ? (
-          <Box pb={4}>
-            <Stack as={'nav'} spacing={4}>
-              {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
-              ))}
-            </Stack>
-          </Box>
-        ) : null}
-      </Box>
+        {
+          isOpen ? (
+            <Box pb={4} >
+              <Stack as={'nav'} spacing={4}>
+                {Links.map((link) => (
+                  <NavLink key={link}>{link}</NavLink>
+                ))}
+              </Stack>
+            </Box>
+          ) : null
+        }
+      </Box >
     </>
   );
 }

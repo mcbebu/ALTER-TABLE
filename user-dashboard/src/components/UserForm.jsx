@@ -74,6 +74,8 @@ export default function UserForm() {
     }
   ]
 
+  const [userAddresses, updateAddress] = useState(addresses)
+
   return (
     <Flex align="center" justify="center" pt='0em'>
       <Box bg="white" p={6} rounded="md" w={'60%'}>
@@ -107,7 +109,7 @@ export default function UserForm() {
               >
                 {
                   addresses.map((address, index) => (
-                    <option value={index + 1}>{address + (index + 1)}</option>
+                    <option value={index + 1}>{'Address ' + (index + 1)}</option>
                   ))
                 }
               </Select>
@@ -116,38 +118,38 @@ export default function UserForm() {
                   addresses.map((address, index) => (
                     selectedAddress == d(index) + 1
                       ? <VStack spacing={4} align="flex-start" w={'full'} id={'Address' + (index + 1)}>
-                        <Text fontSize={'xl'} as={'b'}>{'Address' + (index + 1)}</Text>
+                        <Text fontSize={'xl'} as={'b'}>{'Address ' + (index + 1)}</Text>
                         <FormControl isInvalid={!!errors.password && touched.password}>
-                          <FormLabel htmlFor="userAddr1">Address Line 1</FormLabel>
+                          <FormLabel htmlFor={"userAddr1_" + (index + 1)}>Address Line 1</FormLabel>
                           <Field
                             as={Input}
-                            id="userAddr1"
-                            name="userAddr1"
-                            type="userAddr1"
+                            id={"userAddr1_" + (index + 1)}
+                            name={"userAddr1_" + (index + 1)}
+                            type={"userAddr1_" + (index + 1)}
                             variant="filled"
                             placeholder="Address Line 1"
 
                           />
                         </FormControl>
                         <FormControl isInvalid={!!errors.password && touched.password}>
-                          <FormLabel htmlFor="userAddr2">Address Line 2</FormLabel>
+                          <FormLabel htmlFor={"userAddr2_" + (index + 1)}>Address Line 2</FormLabel>
                           <Field
                             as={Input}
-                            id="userAddr2"
-                            name="userAddr2"
-                            type="userAddr2"
+                            id={"userAddr2_" + (index + 1)}
+                            name={"userAddr2_" + (index + 1)}
+                            type={"userAddr2_" + (index + 1)}
                             variant="filled"
                             placeholder="Address Line 2"
 
                           />
                         </FormControl>
                         <FormControl isInvalid={!!errors.password && touched.password}>
-                          <FormLabel htmlFor="userAddr3">Address Line 3</FormLabel>
+                          <FormLabel htmlFor={"userAddr3_" + (index + 1)}>Address Line 3</FormLabel>
                           <Field
                             as={Input}
-                            id="userAddr3"
-                            name="userAddr3"
-                            type="userAddr3"
+                            id={"userAddr3_" + (index + 1)}
+                            name={"userAddr3_" + (index + 1)}
+                            type={"userAddr3_" + (index + 1)}
                             variant="filled"
                             placeholder="Address Line 3"
 
@@ -156,26 +158,25 @@ export default function UserForm() {
                         <Grid templateColumns='repeat(2, 1fr)' w={'full'} gap={4}>
                           <GridItem>
                             <FormControl>
-                              <FormLabel htmlFor="city">City</FormLabel>
+                              <FormLabel htmlFor={"city_" + (index + 1)}>City</FormLabel>
                               <Field
                                 as={Input}
-                                id="city"
-                                name="city"
-                                type="city"
+                                id={"city_" + (index + 1)}
+                                name={"city_" + (index + 1)}
+                                type={"city_" + (index + 1)}
                                 variant="filled"
                                 placeholder="City"
-
                               />
                             </FormControl>
                           </GridItem>
                           <GridItem>
                             <FormControl>
-                              <FormLabel htmlFor="postalCode">Postal Code</FormLabel>
+                              <FormLabel htmlFor={"postalCode_" + (index + 1)}>Postal Code</FormLabel>
                               <Field
                                 as={Input}
-                                id="postalCode"
-                                name="postalCode"
-                                type="postalCode"
+                                id={"postalCode_" + (index + 1)}
+                                name={"postalCode_" + (index + 1)}
+                                type={"postalCode_" + (index + 1)}
                                 variant="filled"
                                 placeholder="Postal Code"
 
@@ -185,12 +186,12 @@ export default function UserForm() {
                           </GridItem>
                           <GridItem>
                             <FormControl>
-                              <FormLabel htmlFor="phoneNumber">Phone Number</FormLabel>
+                              <FormLabel htmlFor={"phoneNumber" + (index + 1)}>Phone Number</FormLabel>
                               <Field
                                 as={Input}
-                                id="phoneNumber"
-                                name="phoneNumber"
-                                type="phoneNumber"
+                                id={"phoneNumber" + (index + 1)}
+                                name={"phoneNumber" + (index + 1)}
+                                type={"phoneNumber" + (index + 1)}
                                 variant="filled"
                                 placeholder="Phone"
                               />
@@ -198,12 +199,12 @@ export default function UserForm() {
                           </GridItem>
                           <GridItem>
                             <FormControl>
-                              <FormLabel htmlFor="name">Email</FormLabel>
+                              <FormLabel htmlFor={"email" + (index + 1)}>Email</FormLabel>
                               <Field
                                 as={Input}
-                                id="email"
-                                name="email"
-                                type="email"
+                                id={"email" + (index + 1)}
+                                name={"email" + (index + 1)}
+                                type={"email" + (index + 1)}
                                 variant="filled"
                                 placeholder="John.Doe@example.com"
                               />
@@ -466,7 +467,7 @@ export default function UserForm() {
                   </FormControl>
                 </VStack>
                 <ButtonGroup gap='4' justifyContent={'flex-end'} w={'full'}>
-                  <Button type="submit" colorScheme="gray">
+                  <Button type="reset" colorScheme="gray">
                     Cancel
                   </Button>
                   <Button type="submit" colorScheme="red">
