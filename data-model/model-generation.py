@@ -17,7 +17,7 @@ order = [0, 1, 2, 3, 10, 9, 8, 7, 4, 6, 5]
 cumTime = [0, 14, 19, 22, 29, 39, 43, 47, 51, 56, 60, 73]
 cumDistance = [0, 5.6, 7.4, 8.6, 10.7, 13.2, 14.2, 15.2, 16.1, 17.4, 18.1, 22.5]
 
-df = pd.read_csv("./test-model/user-data.csv").drop(['Unnamed: 0'], axis=1)
+df = pd.read_csv("./data-model/user-data.csv").drop(['Unnamed: 0'], axis=1)
 
 cumCustomer = [0] + list(df.groupby("addressID").count().userID.cumsum())
 
