@@ -20,7 +20,7 @@ Our team has developed a new **personalised dashboard for consignees (MyNinja)**
 3. Using navigation bar, you can move to Orders Page. Here, you will see all orders including current and completed orders. For current orders, you can see essential information such as address, contact info, delivery instruction, and option for leaving parcel, and ETA for On The Way orders. <br/><br/>
 In managing orders, you have options to: <br/>
     - Edit Information on orders before it leaves sorting hub
-    - Request new delivery window based on your availability with additional fees (if not available at the ETA)
+    - Request new delivery window based on your availability with alteration fees (if not available at the ETA)
     - Check driver's approval on the requests
 
 ## Technical Frameworks Used
