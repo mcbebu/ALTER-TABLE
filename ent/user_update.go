@@ -74,23 +74,19 @@ func (uu *UserUpdate) SetNotifications(b [4]bool) *UserUpdate {
 	return uu
 }
 
-// SetOrdersID sets the "orders" edge to the Order entity by ID.
-func (uu *UserUpdate) SetOrdersID(id int) *UserUpdate {
-	uu.mutation.SetOrdersID(id)
+// AddOrderIDs adds the "orders" edge to the Order entity by IDs.
+func (uu *UserUpdate) AddOrderIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddOrderIDs(ids...)
 	return uu
 }
 
-// SetNillableOrdersID sets the "orders" edge to the Order entity by ID if the given value is not nil.
-func (uu *UserUpdate) SetNillableOrdersID(id *int) *UserUpdate {
-	if id != nil {
-		uu = uu.SetOrdersID(*id)
+// AddOrders adds the "orders" edges to the Order entity.
+func (uu *UserUpdate) AddOrders(o ...*Order) *UserUpdate {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
 	}
-	return uu
-}
-
-// SetOrders sets the "orders" edge to the Order entity.
-func (uu *UserUpdate) SetOrders(o *Order) *UserUpdate {
-	return uu.SetOrdersID(o.ID)
+	return uu.AddOrderIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -98,10 +94,25 @@ func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
 }
 
-// ClearOrders clears the "orders" edge to the Order entity.
+// ClearOrders clears all "orders" edges to the Order entity.
 func (uu *UserUpdate) ClearOrders() *UserUpdate {
 	uu.mutation.ClearOrders()
 	return uu
+}
+
+// RemoveOrderIDs removes the "orders" edge to Order entities by IDs.
+func (uu *UserUpdate) RemoveOrderIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveOrderIDs(ids...)
+	return uu
+}
+
+// RemoveOrders removes "orders" edges to Order entities.
+func (uu *UserUpdate) RemoveOrders(o ...*Order) *UserUpdate {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return uu.RemoveOrderIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -132,7 +143,7 @@ func (uu *UserUpdate) ExecX(ctx context.Context) {
 }
 
 func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeString))
 	if ps := uu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -164,7 +175,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if uu.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   user.OrdersTable,
 			Columns: []string{user.OrdersColumn},
@@ -178,9 +189,28 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := uu.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !uu.mutation.OrdersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OrdersTable,
+			Columns: []string{user.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: order.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := uu.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   user.OrdersTable,
 			Columns: []string{user.OrdersColumn},
@@ -261,23 +291,19 @@ func (uuo *UserUpdateOne) SetNotifications(b [4]bool) *UserUpdateOne {
 	return uuo
 }
 
-// SetOrdersID sets the "orders" edge to the Order entity by ID.
-func (uuo *UserUpdateOne) SetOrdersID(id int) *UserUpdateOne {
-	uuo.mutation.SetOrdersID(id)
+// AddOrderIDs adds the "orders" edge to the Order entity by IDs.
+func (uuo *UserUpdateOne) AddOrderIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddOrderIDs(ids...)
 	return uuo
 }
 
-// SetNillableOrdersID sets the "orders" edge to the Order entity by ID if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableOrdersID(id *int) *UserUpdateOne {
-	if id != nil {
-		uuo = uuo.SetOrdersID(*id)
+// AddOrders adds the "orders" edges to the Order entity.
+func (uuo *UserUpdateOne) AddOrders(o ...*Order) *UserUpdateOne {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
 	}
-	return uuo
-}
-
-// SetOrders sets the "orders" edge to the Order entity.
-func (uuo *UserUpdateOne) SetOrders(o *Order) *UserUpdateOne {
-	return uuo.SetOrdersID(o.ID)
+	return uuo.AddOrderIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -285,10 +311,25 @@ func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
 }
 
-// ClearOrders clears the "orders" edge to the Order entity.
+// ClearOrders clears all "orders" edges to the Order entity.
 func (uuo *UserUpdateOne) ClearOrders() *UserUpdateOne {
 	uuo.mutation.ClearOrders()
 	return uuo
+}
+
+// RemoveOrderIDs removes the "orders" edge to Order entities by IDs.
+func (uuo *UserUpdateOne) RemoveOrderIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveOrderIDs(ids...)
+	return uuo
+}
+
+// RemoveOrders removes "orders" edges to Order entities.
+func (uuo *UserUpdateOne) RemoveOrders(o ...*Order) *UserUpdateOne {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return uuo.RemoveOrderIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -332,7 +373,7 @@ func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
 }
 
 func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeString))
 	id, ok := uuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "User.id" for update`)}
@@ -381,7 +422,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if uuo.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   user.OrdersTable,
 			Columns: []string{user.OrdersColumn},
@@ -395,9 +436,28 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := uuo.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !uuo.mutation.OrdersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OrdersTable,
+			Columns: []string{user.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: order.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := uuo.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   user.OrdersTable,
 			Columns: []string{user.OrdersColumn},

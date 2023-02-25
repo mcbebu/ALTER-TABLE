@@ -14,13 +14,13 @@ type Shipper struct {
 // Fields of the Shipper.
 func (Shipper) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").Immutable(),
+		field.String("name").NotEmpty(),
 	}
 }
 
 // Edges of the Shipper.
 func (Shipper) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("orders", Order.Type).Unique(),
+		edge.To("orders", Order.Type),
 	}
 }

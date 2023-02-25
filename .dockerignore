@@ -2,15 +2,15 @@
 shipper-dashboard
 user-dashboard
 
+# Path Planning
+path-planning
+
 # Docker
 Dockerfile
 .dockerignore
 
 # k8s
 k8s
-
-# Path Planning
-delivery-data
 
 # Git
 .git

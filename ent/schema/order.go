@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -15,9 +16,10 @@ type Order struct {
 // Fields of the Order.
 func (Order) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").NotEmpty(),
-		field.String("title").NotEmpty(),
-		field.String("description").Optional(),
+		field.String("name").NotEmpty().Immutable(),
+		field.String("title").NotEmpty().Immutable(),
+		field.String("description").Immutable(),
+		field.String("mobileNumber").NotEmpty().Immutable(),
 		field.String("altMobileNumber").Optional(),
 		field.JSON("address", Address{}).Default(Address{}),
 		field.Bool("leaveParcel").Default(false),
@@ -31,5 +33,7 @@ func (Order) Fields() []ent.Field {
 
 // Edges of the Order.
 func (Order) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("shippers", Shipper.Type).Ref("orders").Unique(),
+	}
 }

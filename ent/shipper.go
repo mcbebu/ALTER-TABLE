@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/mcbebu/ALTER-TABLE/ent/order"
 	"github.com/mcbebu/ALTER-TABLE/ent/shipper"
 )
 
@@ -20,27 +19,22 @@ type Shipper struct {
 	Name string `json:"name,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ShipperQuery when eager-loading is set.
-	Edges          ShipperEdges `json:"edges"`
-	shipper_orders *int
+	Edges ShipperEdges `json:"edges"`
 }
 
 // ShipperEdges holds the relations/edges for other nodes in the graph.
 type ShipperEdges struct {
 	// Orders holds the value of the orders edge.
-	Orders *Order `json:"orders,omitempty"`
+	Orders []*Order `json:"orders,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
 // OrdersOrErr returns the Orders value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e ShipperEdges) OrdersOrErr() (*Order, error) {
+// was not loaded in eager-loading.
+func (e ShipperEdges) OrdersOrErr() ([]*Order, error) {
 	if e.loadedTypes[0] {
-		if e.Orders == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: order.Label}
-		}
 		return e.Orders, nil
 	}
 	return nil, &NotLoadedError{edge: "orders"}
@@ -55,8 +49,6 @@ func (*Shipper) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case shipper.FieldName:
 			values[i] = new(sql.NullString)
-		case shipper.ForeignKeys[0]: // shipper_orders
-			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Shipper", columns[i])
 		}
@@ -83,13 +75,6 @@ func (s *Shipper) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				s.Name = value.String
-			}
-		case shipper.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field shipper_orders", value)
-			} else if value.Valid {
-				s.shipper_orders = new(int)
-				*s.shipper_orders = int(value.Int64)
 			}
 		}
 	}

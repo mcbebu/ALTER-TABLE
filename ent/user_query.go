@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -23,7 +24,6 @@ type UserQuery struct {
 	inters     []Interceptor
 	predicates []predicate.User
 	withOrders *OrderQuery
-	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -74,7 +74,7 @@ func (uq *UserQuery) QueryOrders() *OrderQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(order.Table, order.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, user.OrdersTable, user.OrdersColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.OrdersTable, user.OrdersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -106,8 +106,8 @@ func (uq *UserQuery) FirstX(ctx context.Context) *User {
 
 // FirstID returns the first User ID from the query.
 // Returns a *NotFoundError when no User ID was found.
-func (uq *UserQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (uq *UserQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = uq.Limit(1).IDs(setContextOp(ctx, uq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -119,7 +119,7 @@ func (uq *UserQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (uq *UserQuery) FirstIDX(ctx context.Context) int {
+func (uq *UserQuery) FirstIDX(ctx context.Context) string {
 	id, err := uq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -157,8 +157,8 @@ func (uq *UserQuery) OnlyX(ctx context.Context) *User {
 // OnlyID is like Only, but returns the only User ID in the query.
 // Returns a *NotSingularError when more than one User ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (uq *UserQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (uq *UserQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = uq.Limit(2).IDs(setContextOp(ctx, uq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -174,7 +174,7 @@ func (uq *UserQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (uq *UserQuery) OnlyIDX(ctx context.Context) int {
+func (uq *UserQuery) OnlyIDX(ctx context.Context) string {
 	id, err := uq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -202,7 +202,7 @@ func (uq *UserQuery) AllX(ctx context.Context) []*User {
 }
 
 // IDs executes the query and returns a list of User IDs.
-func (uq *UserQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (uq *UserQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if uq.ctx.Unique == nil && uq.path != nil {
 		uq.Unique(true)
 	}
@@ -214,7 +214,7 @@ func (uq *UserQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (uq *UserQuery) IDsX(ctx context.Context) []int {
+func (uq *UserQuery) IDsX(ctx context.Context) []string {
 	ids, err := uq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -369,18 +369,11 @@ func (uq *UserQuery) prepareQuery(ctx context.Context) error {
 func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, error) {
 	var (
 		nodes       = []*User{}
-		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
 		loadedTypes = [1]bool{
 			uq.withOrders != nil,
 		}
 	)
-	if uq.withOrders != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, user.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*User).scanValues(nil, columns)
 	}
@@ -400,8 +393,9 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		return nodes, nil
 	}
 	if query := uq.withOrders; query != nil {
-		if err := uq.loadOrders(ctx, query, nodes, nil,
-			func(n *User, e *Order) { n.Edges.Orders = e }); err != nil {
+		if err := uq.loadOrders(ctx, query, nodes,
+			func(n *User) { n.Edges.Orders = []*Order{} },
+			func(n *User, e *Order) { n.Edges.Orders = append(n.Edges.Orders, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -409,34 +403,33 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 }
 
 func (uq *UserQuery) loadOrders(ctx context.Context, query *OrderQuery, nodes []*User, init func(*User), assign func(*User, *Order)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*User)
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*User)
 	for i := range nodes {
-		if nodes[i].user_orders == nil {
-			continue
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
 		}
-		fk := *nodes[i].user_orders
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(order.IDIn(ids...))
+	query.withFKs = true
+	query.Where(predicate.Order(func(s *sql.Selector) {
+		s.Where(sql.InValues(user.OrdersColumn, fks...))
+	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		fk := n.user_orders
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_orders" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_orders" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_orders" returned %v for node %v`, *fk, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
+		assign(node, n)
 	}
 	return nil
 }
@@ -451,7 +444,7 @@ func (uq *UserQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (uq *UserQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeString))
 	_spec.From = uq.sql
 	if unique := uq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

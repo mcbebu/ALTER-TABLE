@@ -26,23 +26,19 @@ func (sc *ShipperCreate) SetName(s string) *ShipperCreate {
 	return sc
 }
 
-// SetOrdersID sets the "orders" edge to the Order entity by ID.
-func (sc *ShipperCreate) SetOrdersID(id int) *ShipperCreate {
-	sc.mutation.SetOrdersID(id)
+// AddOrderIDs adds the "orders" edge to the Order entity by IDs.
+func (sc *ShipperCreate) AddOrderIDs(ids ...int) *ShipperCreate {
+	sc.mutation.AddOrderIDs(ids...)
 	return sc
 }
 
-// SetNillableOrdersID sets the "orders" edge to the Order entity by ID if the given value is not nil.
-func (sc *ShipperCreate) SetNillableOrdersID(id *int) *ShipperCreate {
-	if id != nil {
-		sc = sc.SetOrdersID(*id)
+// AddOrders adds the "orders" edges to the Order entity.
+func (sc *ShipperCreate) AddOrders(o ...*Order) *ShipperCreate {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
 	}
-	return sc
-}
-
-// SetOrders sets the "orders" edge to the Order entity.
-func (sc *ShipperCreate) SetOrders(o *Order) *ShipperCreate {
-	return sc.SetOrdersID(o.ID)
+	return sc.AddOrderIDs(ids...)
 }
 
 // Mutation returns the ShipperMutation object of the builder.
@@ -82,6 +78,11 @@ func (sc *ShipperCreate) check() error {
 	if _, ok := sc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Shipper.name"`)}
 	}
+	if v, ok := sc.mutation.Name(); ok {
+		if err := shipper.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Shipper.name": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -114,7 +115,7 @@ func (sc *ShipperCreate) createSpec() (*Shipper, *sqlgraph.CreateSpec) {
 	}
 	if nodes := sc.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   shipper.OrdersTable,
 			Columns: []string{shipper.OrdersColumn},
@@ -129,7 +130,6 @@ func (sc *ShipperCreate) createSpec() (*Shipper, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.shipper_orders = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
