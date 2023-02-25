@@ -8,10 +8,10 @@ Our team has developed a new **personalised dashboard for consignees (MyNinja)**
 
 ## Features
 
-* User Credential: Consignees can login to the dashboard using their phone number that associates with orders.
-* Orders Overview: Consignees can view status of current orders, estimated time of arrival (ETA), and order history.
-* Order Management: Consignees can easily change address, choose order aggregation option, or select delivery window service.
-* Profile Management: Consignees can store and update their addresses, and also indicate address preference by days in the week.
+* User Credential: Login to the dashboard using their phone number that associates with orders.
+* Orders Overview: View status of current orders, estimated time of arrival (ETA), and order history.
+* Order Management: Change address, choose order aggregation option, or select delivery window service.
+* Profile Management: Store and update their addresses, and also indicate address preference by days in the week.
 
 ## How to use the dashboard
 
@@ -19,9 +19,9 @@ Our team has developed a new **personalised dashboard for consignees (MyNinja)**
 2. On the Preferences site, you can see saved addresses, which you can always add a new one. In here, you can also manage notifications before delivery.
 3. Using navigation bar, you can move to Orders Page. Here, you will see all orders including current and completed orders. For current orders, you can see essential information such as address, contact info, delivery instruction, and option for leaving parcel, and ETA for On The Way orders. 
 In managing orders, you have options to:
-* Edit Information on orders before it leaves the Hub
-* Request new delivery window based on your availability (if not available at the ETA)
-* Check driver's approval on the requests
+  - Edit Information on orders before it leaves the Hub
+  - Request new delivery window based on your availability (if not available at the ETA)
+  - Check driver's approval on the requests
 
 ## Technical Frameworks Used
 
