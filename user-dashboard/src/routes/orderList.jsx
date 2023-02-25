@@ -1,47 +1,73 @@
 import OrderCard from '../components/ordercard'
 import Header from '../components/header'
 import { Center, VStack, Text, Box } from '@chakra-ui/react';
+import { useState } from 'react';
+
+const dummyUser = {
+  id: '129445',
+  mobileNumber: '19789',
+  addresses: [
+    {
+      userAddr1: "38 Nanyang Cres",
+      userAddr2: "Saraca Hall",
+      userAddr3: "22-11-22",
+      city: "Singapore West",
+      postalCode: "636866",
+    },
+    {
+      userAddr1: "38 UTown",
+      userAddr2: "Prince George Park",
+      userAddr3: "24-1",
+      city: "Singapore South",
+      postalCode: "666666",
+    },
+  ],
+}
 
 const dummyData = [
   {
     id: '01273048120',
+    name: 'Puri Virakarn',
     title: "parcel name",
     userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
     instructions: ["Leave Parcel at the door"],
     leaveParcel: true,
     status: "On the way",
     mobileNumber: '123446',
-    emailAddr: "",
+    emailAddr: "adsfljas@opijpo.co.sg",
   },
   {
     id: '10283490870',
+    name: 'Puri Virakarn',
     title: "parcel name",
     userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
     instructions: ["Leave Parcel at the door"],
     leaveParcel: true,
     status: "Picked up",
     mobileNumber: '083290',
-    emailAddr: "",
+    emailAddr: "name@gmail.addr",
   },
   {
     id: '2134235432',
+    name: 'Puri Virakarn',
     title: "parcel name",
     userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
     instructions: ["Leave Parcel at the door"],
     leaveParcel: true,
     status: "Picked up",
     mobileNumber: '083290',
-    emailAddr: "",
+    emailAddr: "loc@facebook.ai",
   },
   {
     id: '18379489234',
+    name: 'Puri Virakarn',
     title: "parcel name",
     userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
     instructions: ["Leave Parcel at the door"],
     leaveParcel: true,
-    status: "Order Created",
+    status: "Order created",
     mobileNumber: '083290',
-    emailAddr: "",
+    emailAddr: "asdlf@asf.com",
   },
 ];
 
@@ -52,7 +78,7 @@ export default function OrderedList() {
       <VStack spacing={4} mt={6}>
         {dummyData.map((eachOrder, index) => (
           <Box boxShadow={'xl'}>
-            <OrderCard data={eachOrder} index={index}></OrderCard>
+            <OrderCard data={eachOrder} index={index} userData={dummyUser}></OrderCard>
           </Box>
           )
         )}

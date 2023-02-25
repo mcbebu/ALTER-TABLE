@@ -38,6 +38,8 @@ const TSP = (graph, address_ids, source) => {
     };
 }
 
+export TSP;
+
 const findNextPermutation = (data) => {
     
     if (data.length <= 1) return false;
