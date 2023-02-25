@@ -3,6 +3,9 @@ import Header from '../components/header'
 import { Center, VStack, Text, Box, SimpleGrid } from '@chakra-ui/react';
 import { useState } from 'react';
 
+import { auth } from '../../firebase'
+import { useAuthState } from 'react-firebase-hooks/auth';
+
 const dummyUser = {
   id: '129445',
   mobileNumber: '19789',
@@ -72,6 +75,7 @@ const dummyData = [
 ];
 
 export default function OrderedList() {
+  const [user] = useAuthState(auth);
   return (
     <h1>
       <Header />
