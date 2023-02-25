@@ -138,7 +138,7 @@ export default function UserForm() {
     updateAddress(addresses);
   }
 
-  return (
+  return (<>{isSuccess && 
     <Flex align="center" justify="center" pt='0em'>
       <Box bg="white" p={6} rounded="md" w={'60%'}>
         <Text fontSize={'3xl'} as={'b'} mb={4}>Preferences</Text>
@@ -299,5 +299,5 @@ export default function UserForm() {
         </Formik>
       </Box>
     </Flex >
-  );
+              }</>);
 }

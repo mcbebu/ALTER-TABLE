@@ -25,10 +25,12 @@ import {
     PopoverArrow,
     PopoverCloseButton,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { Formik, Field } from 'formik'
 import { auth } from '../../firebase'
+import {useQuery} from'@tanstack/react-query'
+import axios from "axios";
 
 const mapColor = (status) =>{
     const statArr = ['Order created', 'Picked up', 'On the way', 'Delivered'];
@@ -38,12 +40,22 @@ const mapColor = (status) =>{
     return 'red.200';
 }
 
+const getOrder = async (idToken) => {
+    const { data } = await axios.get(`${import.meta.env.VITE_SERVER_URL}/orders`, {
+      headers: {
+        'Authorization': `Bearer ${idToken}`
+      }
+    })
+    return data
+  }
+  
 const OrderCard = (props) => {
     const [user] = useAuthState(auth)
+
     const [editing, setEditing] = useState(0);
     const [leaveParcelVal, setLeaveParcel] = useState(props.data.leaveParcel)
     const [addressIndex, setAddressIndex] = useState(props.userData.addresses.findIndex((x)=>{return x.userAddr1===props.data.userAddrs[0];}));
-    
+    console.log(props.ogdata, props.isSuccess)
     const addressIndexChange = (e) => {
         setAddressIndex(e.target.value)
     }
@@ -68,6 +80,7 @@ const OrderCard = (props) => {
         props.setData(tempData)
     }
     return (
+        <>{isSuccess && 
         <>
             {(props.data.status==='On the way' || 
                 props.data.status==='Delivered') || !editing ? 
@@ -241,6 +254,7 @@ const OrderCard = (props) => {
             </Card>
             }
         </>
+        }</>
     );
 }
 
