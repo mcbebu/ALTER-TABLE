@@ -12,7 +12,9 @@ import Home from './routes/home'
 import Login from './routes/login';
 import OrderList from './routes/orderList'
 import PrivateRoute from './routes/privateRoute';
+import { QueryClientProvider, QueryClient} from '@tanstack/react-query'
 
+const queryClient = new QueryClient()
 const router = createBrowserRouter([
   {
     path: "/",
