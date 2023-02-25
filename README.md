@@ -2,7 +2,7 @@
 
 Welcome to our submission for the NinjaVan Hackathon!  
 
-Our team has developed a new personalised dashboard for consignees that provides a wide range of options and user-friendly interface for managing their orders.
+Our team has developed a new **personalised dashboard for consignees (MyNinja)** that provides a wide range of options and user-friendly interface for managing their orders.
 
 ## Features
 
