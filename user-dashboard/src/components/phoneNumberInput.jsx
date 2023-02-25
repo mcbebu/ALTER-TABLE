@@ -5,11 +5,9 @@ import {
   Input,
   Select,
   InputGroup,
-  InputLeftElement
+  InputLeftElement,
 } from "@chakra-ui/react";
-import {
-  PhoneIcon,
-} from '@chakra-ui/icons';
+import { PhoneIcon } from "@chakra-ui/icons";
 import Flag from "react-world-flags";
 import { AsYouType } from "libphonenumber-js";
 import { getCountryTelCode } from "./countries";
@@ -34,7 +32,7 @@ const PhoneNumberInput = ({
     setCountryCode(getCountryTelCode(country));
   }, [country]);
 
-  const onCountryChange = e => {
+  const onCountryChange = (e) => {
     let value = e.target.value;
     let code = getCountryTelCode(value);
     let parsedNumber = new AsYouType().input(`${code}${number}`);
@@ -44,7 +42,7 @@ const PhoneNumberInput = ({
     onChange(parsedNumber);
   };
 
-  const onPhoneNumberChange = e => {
+  const onPhoneNumberChange = (e) => {
     let value = e.target.value;
     let parsedNumber = new AsYouType().input(`${countryCode}${value}`);
 
@@ -64,7 +62,7 @@ const PhoneNumberInput = ({
           onChange={onCountryChange}
         >
           <option value="" />
-          {options.map(option => (
+          {options.map((option) => (
             <option value={option.value}>{option.label}</option>
           ))}
         </Select>
@@ -88,11 +86,11 @@ const PhoneNumberInput = ({
       />
     </InputGroup>
   );
-}
+};
 
 PhoneNumberInput.defaultProps = {
   options: [],
-  size: "md"
+  size: "md",
 };
 
 export default PhoneNumberInput;

@@ -1,4 +1,4 @@
-import react, { useState, useEffect } from 'react';
+import react, { useState, useEffect } from "react";
 import { Formik, Field } from "formik";
 import {
   Box,
@@ -20,28 +20,30 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 
-import { useAuthState } from 'react-firebase-hooks/auth'
-import { auth } from '../../firebase'
-import { useQuery } from '@tanstack/react-query'
-import { onAuthStateChanged } from 'firebase/auth';
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../firebase";
+import { useQuery } from "@tanstack/react-query";
+import { onAuthStateChanged } from "firebase/auth";
 
 const getUserData = async (idToken) => {
   const { data } = await axios.get(`${import.meta.env.VITE_SERVER_URL}/user`, {
     headers: {
-      'Authorization': `Bearer ${idToken}`
-    }
+      Authorization: `Bearer ${idToken}`,
+    },
   });
   return data;
-}
-
+};
 
 export default function UserForm() {
-
   const [user] = useAuthState(auth);
-  const { data, isSuccess } = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
-    enabled: !!user
-  })
-  console.log("user ", JSON.stringify(user))
+  const { data, isSuccess } = useQuery(
+    ["user"],
+    async () => getUserData(await user.getIdToken()),
+    {
+      enabled: !!user,
+    }
+  );
+  console.log("user ", JSON.stringify(user));
   console.log("read ", JSON.stringify(data));
 
   const [selectedAddress, setAddress] = useState(0);
@@ -79,7 +81,7 @@ export default function UserForm() {
       initialV['postalCode_' + (index + 1)] = address.PostalCode;
     })
     return initialV;
-  }
+  };
 
   const addAddress = () => {
     data.addresses.push({

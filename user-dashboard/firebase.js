@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, signOut } from 'firebase/auth';
+import {
+  getAuth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  signOut,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,21 +18,25 @@ const firebaseConfig = {
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app)
+export const auth = getAuth(app);
 
 export const appSignIn = async (phoneNumber) => {
   if (!window.recaptchaVerifier) {
-    window.recaptchaVerifier = new RecaptchaVerifier('sign-in-button', {
-      size: 'invisible'
-    }, auth);
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      "sign-in-button",
+      {
+        size: "invisible",
+      },
+      auth
+    );
   }
-  return signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier)
-}
+  return signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+};
 
 export const appVerifyCode = async (confirmationResult, code) => {
-  return confirmationResult.confirm(code)
-}
+  return confirmationResult.confirm(code);
+};
 
 export const appSignOut = async () => {
-  signOut(auth)
-}
+  signOut(auth);
+};
