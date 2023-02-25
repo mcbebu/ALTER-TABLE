@@ -3,11 +3,14 @@ package main
 import (
 	"net/http"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	authMiddleware "github.com/mcbebu/ALTER-TABLE/middleware"
 )
 
 func main() {
+	godotenv.Load()
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
@@ -15,6 +18,7 @@ func main() {
 		AllowOrigins: []string{"*"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderXRequestedWith, echo.HeaderAuthorization},
 	}))
+	e.Use(authMiddleware.Auth())
 	e.GET("/hello", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello Ninja!")
 	})
