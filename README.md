@@ -15,8 +15,8 @@ Our team has developed a new **personalised dashboard for consignees (MyNinja)**
 
 ## How to use the dashboard
 
-1. Login to the dashboard using your phone number, verify reCAPTCHA, and enter OTP sent to your number.
-2. On the Preferences site, you can see saved addresses, which you can always add a new one. In here, you can also manage notifications before delivery.
+1. Login to the dashboard using your phone number, verify reCAPTCHA, and enter OTP sent to your number.<br/>
+2. On the Preferences site, you can see saved addresses, which you can always add a new one. In here, you can also manage notifications before delivery.<br/>
 3. Using navigation bar, you can move to Orders Page. Here, you will see all orders including current and completed orders. For current orders, you can see essential information such as address, contact info, delivery instruction, and option for leaving parcel, and ETA for On The Way orders. <br/>
 In managing orders, you have options to: <br/>
     - Edit Information on orders before it leaves the Hub
