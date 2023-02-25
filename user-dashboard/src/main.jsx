@@ -12,18 +12,18 @@ import Home from './routes/home'
 import Login from './routes/login';
 import OrderList from './routes/orderList'
 import PrivateRoute from './routes/privateRoute';
-import { QueryClientProvider, QueryClient} from '@tanstack/react-query'
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 
 const queryClient = new QueryClient()
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />
+    element: <PrivateRoute><Home /></PrivateRoute>
     ,
   },
   {
     path: "/dashboard",
-    element: <Home />,
+    element: <Navigate to='/' />,
   },
   {
     path: "/login",
@@ -31,11 +31,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/order",
-    element: <OrderList />,
+    element: <PrivateRoute><OrderList /></PrivateRoute>,
   },
   {
     path: "/orders",
-    element: <OrderList />,
+    element: <Navigate to='/order' />,
   },
   {
     path: "*",
