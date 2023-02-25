@@ -12,8 +12,8 @@ import { useNavigate } from "react-router-dom";
 export default function Home() {
   const navigate = useNavigate();
   const [currentUser, setUSer] = useState(auth.currentUser);
-  console.log('bruh')
   const logOut = () => {
+    alert('logging out...');
     signOut(auth).then(() => {
       // Sign-out successful.
       navigate("/login")
@@ -34,7 +34,7 @@ export default function Home() {
     }
   });
 
-  console.log(currentUser);
+  console.log(!currentUser);
 
   return (
     <Box w={'full'}>
