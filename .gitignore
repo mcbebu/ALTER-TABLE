@@ -11,7 +11,7 @@
 *.njsproj
 *.sln
 *.sw?
-./delivery-data/node_modules/*
+delivery-data/node_modules/*
 
 # Builds
 tmp
