@@ -276,11 +276,11 @@ export default function OrderedList() {
                       </Button>
                       <Modal isOpen={isOpen} onClose={onClose}>
                         <ModalOverlay />
-                        <ModalContent>
-                          <ModalHeader>Click on your available time to make them green</ModalHeader>
+                        <ModalContent maxW={'none'} w='any'>
+                          <ModalHeader>Click on your available time to make them green.</ModalHeader>
                           <ModalCloseButton />
                           <ModalBody>
-                            <HStack maxW='none'>
+                            <HStack maxW='none' mb={8}>
                               {avail.map((entry, index) => (
                                 <VStack onClick={changeBool(index)}>
                                   <Text fontSize={'sm'}>{idxToTime(index)}</Text>
@@ -289,6 +289,7 @@ export default function OrderedList() {
                               ))
                               }
                             </HStack>
+                            <Text as={'b'}>*Submitting request mean agreeing to pay alteration fees*</Text>
                           </ModalBody>
                           <ModalFooter>
                             <Button colorScheme='blue' mr={3} onClick={onClose}>
