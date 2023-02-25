@@ -38,36 +38,21 @@ export default function UserForm() {
 
   const [selectedAddress, setAddress] = useState(0);
   const [user] = useAuthState(auth);
-  // const { data, isSuccess } = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
-  //   enabled: !!user
-  // })
-  // console.log("user ", JSON.stringify(user))
-  // console.log("read ", JSON.stringify(data));
+  const { data, isSuccess } = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
+    enabled: !!user
+  })
+  console.log("user ", JSON.stringify(user))
+  console.log("read ", JSON.stringify(data));
 
-  const addresses = [
-    {
-      id: '01273048120',
-      name: 'Puri Virakarn',
-      title: "parcel name",
-      userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
-      instructions: ["Leave Parcel at the door"],
-      leaveParcel: true,
-      status: "On the way",
-      mobileNumber: '123446',
-      emailAddr: "adsfljas@opijpo.co.sg",
-    },
-    {
-      id: '01273048120',
-      name: 'Puri Virakarn',
-      title: "parcel name",
-      userAddrs: ["Addr12", "Addr22", "Addr32", "city", "postalCode"],
-      instructions: ["Leave Parcel at the door"],
-      leaveParcel: true,
-      status: "On the way",
-      mobileNumber: '123446',
-      emailAddr: "adsfljas@opijpo.co.sg",
-    }
-  ]
+  let addresses;
+  try {
+    console.log(data.forEach);
+    addresses = data;
+  }
+  catch (e) {
+    addresses = [];
+    addresses.push(data);
+  }
 
   const [userAddresses, updateAddress] = useState(addresses);
 
@@ -100,13 +85,13 @@ export default function UserForm() {
 
   const initialV = {};
   addresses.forEach((address, index) => {
-    initialV['userAddr1_' + (index + 1)] = address.userAddrs[0];
-    initialV['userAddr2_' + (index + 1)] = address.userAddrs[1];
-    initialV['userAddr3_' + (index + 1)] = address.userAddrs[2];
-    initialV['city_' + (index + 1)] = address.userAddrs[3];
-    initialV['postalCode_' + (index + 1)] = address.userAddrs[4];
-    initialV['phoneNumber_' + (index + 1)] = address.mobileNumber;
-    initialV['email_' + (index + 1)] = address.emailAddr;
+    if (address.userAddrs[0]) initialV['userAddr1_' + (index + 1)] = address.userAddrs[0];
+    if (address.userAddrs[1]) initialV['userAddr2_' + (index + 1)] = address.userAddrs[1];
+    if (address.userAddrs[2]) initialV['userAddr3_' + (index + 1)] = address.userAddrs[2];
+    if (address.userAddrs[3]) initialV['city_' + (index + 1)] = address.userAddrs[3];
+    if (address.userAddrs[4]) initialV['postalCode_' + (index + 1)] = address.userAddrs[4];
+    if (address.mobileNumber) initialV['phoneNumber_' + (index + 1)] = address.mobileNumber;
+    if (address.emailAddr) initialV['email_' + (index + 1)] = address.emailAddr;
   });
 
   return (
@@ -156,7 +141,6 @@ export default function UserForm() {
                             type={"userAddr1_" + (index + 1)}
                             variant="filled"
                             placeholder="Address Line 1"
-
                           />
                         </FormControl>
                         <FormControl isInvalid={!!errors.password && touched.password}>
@@ -168,7 +152,6 @@ export default function UserForm() {
                             type={"userAddr2_" + (index + 1)}
                             variant="filled"
                             placeholder="Address Line 2"
-
                           />
                         </FormControl>
                         <FormControl isInvalid={!!errors.password && touched.password}>
@@ -180,7 +163,6 @@ export default function UserForm() {
                             type={"userAddr3_" + (index + 1)}
                             variant="filled"
                             placeholder="Address Line 3"
-
                           />
                         </FormControl>
                         <Grid templateColumns='repeat(2, 1fr)' w={'full'} gap={4}>
