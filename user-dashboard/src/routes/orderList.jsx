@@ -1,6 +1,6 @@
 import OrderCard from '../components/ordercard'
 import Header from '../components/header'
-import { Center, VStack, Text, Box } from '@chakra-ui/react';
+import { Center, VStack, Text, Box, SimpleGrid } from '@chakra-ui/react';
 import { useState } from 'react';
 
 const dummyUser = {
@@ -75,14 +75,14 @@ export default function OrderedList() {
   return (
     <h1>
       <Header />
-      <VStack spacing={4} mt={6}>
+      <SimpleGrid spacingY={4} mt={6} columns={{'sm':1, 'xl':2}}>
         {dummyData.map((eachOrder, index) => (
-          <Box boxShadow={'xl'}>
+          <Box boxShadow={'xl'} m='auto'>
             <OrderCard data={eachOrder} index={index} userData={dummyUser}></OrderCard>
           </Box>
           )
         )}
-      </VStack>
+      </SimpleGrid>
     </h1>
   )
 }

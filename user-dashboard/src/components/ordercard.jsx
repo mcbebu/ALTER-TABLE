@@ -37,7 +37,7 @@ const OrderCard = (props) => {
         <>
             {(props.data.status==='On the way' || 
                 props.data.status==='Delivered') || !editing ? 
-            <Card w={300}>
+            <Card w={500}>
                 <CardHeader bg='gray.300'>
                     <Center>
                         <Kbd bg={mapColor(props.data.status)}>{props.data.status}</Kbd>
@@ -58,7 +58,7 @@ const OrderCard = (props) => {
                         <Box ml={6}>{value}</Box>
                     ))}
                     <Text fontSize='20px' fontWeight='semibold'>Contact Info</Text>
-                        <Box ml={6}>+65 {props.data.mobileNumber}</Box>
+                        <Box ml={6}>{props.data.mobileNumber}</Box>
                         <Box ml={6}>{props.data.name}</Box>
                         <Box ml={6}>{props.data.emailAddr}</Box>
                     <Text fontSize='20px' fontWeight='semibold'>Delivery Instruction(s)</Text>
@@ -153,6 +153,12 @@ const OrderCard = (props) => {
                                     placeholder="John Doe"
                                 />
                                 </FormControl>
+                                <Text fontSize='20px' fontWeight='semibold'>Leave Parcel</Text>
+                                <Select placeholder={props.data.leaveParcel}>
+                                    <option>Yes</option>
+                                    <option>No</option>
+                                </Select>
+
                                 <Button type="submit" colorScheme="purple" float={'left'}>
                                 Update Changes
                                 </Button>
