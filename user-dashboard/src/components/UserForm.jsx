@@ -22,7 +22,7 @@ import axios from "axios";
 
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { onAuthStateChanged } from "firebase/auth";
 
 const getUserData = async (idToken) => {
@@ -32,6 +32,15 @@ const getUserData = async (idToken) => {
     },
   });
   return data;
+};
+
+const writeData = async ({ val, idToken }) => {
+  const { data } = await axios.put(`${import.meta.env.VITE_SERVER_URL}/user`, val, {
+    headers: {
+      Authorization: `Bearer ${idToken}`
+    }
+  })
+  console.log(data);
 };
 
 export default function UserForm() {
@@ -48,13 +57,28 @@ export default function UserForm() {
 
   const [selectedAddress, setAddress] = useState(0);
 
+  const { mutate: updateData } = useMutation(({ val, idToken }) => writeData({ val, idToken }), {
+    onSuccess: () => {
+      toast({
+        title: "Order Updated",
+        description: "user updated successfully",
+        status: "success",
+        isClosable: true,
+      })
+      client.invalidateQueries({ queryKey: ["user"] })
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "failed updating user",
+        status: "error",
+        isClosable: true,
+      })
+    },
+  });
+
   if (data && !data?.addresses) {
     data.addresses = [];
-  }
-
-  const updateAddress = () => {
-    alert("congrats! write update now");
-    console.log(data.addresses);
   }
 
   const convertValue = (value) => {
@@ -73,13 +97,14 @@ export default function UserForm() {
   const getInitials = () => {
     const initialV = {};
     data?.addresses?.forEach((address, index) => {
-      initialV['email_' + (index + 1)] = address.EmailAddr;
-      initialV['userAddr1_' + (index + 1)] = address.UserAddr1;
-      initialV['userAddr2_' + (index + 1)] = address.UserAddr2 ? address.UserAddr2 : "";
-      initialV['userAddr3_' + (index + 1)] = address.UserAddr3 ? address.UserAddr3 : "";
-      initialV['city_' + (index + 1)] = address.City;
-      initialV['postalCode_' + (index + 1)] = address.PostalCode;
+      initialV['email_' + (index + 1)] = address.emailAddr;
+      initialV['userAddr1_' + (index + 1)] = address.userAddr1;
+      initialV['userAddr2_' + (index + 1)] = address.userAddr2 ? address.userAddr2 : "";
+      initialV['userAddr3_' + (index + 1)] = address.userAddr3 ? address.userAddr3 : "";
+      initialV['city_' + (index + 1)] = address.city;
+      initialV['postalCode_' + (index + 1)] = address.postalCode;
     })
+    // console.log(initialV);
     return initialV;
   };
 
@@ -110,21 +135,22 @@ export default function UserForm() {
     if (data?.notifications[1]) tmp.push('1');
     if (data?.notifications[2]) tmp.push('2');
     if (data?.notifications[3]) tmp.push('3');
+    // console.log(data.notifications);
+    return tmp;
   }
 
-  return (<>{isSuccess && 
+  return (<>{isSuccess &&
     <Flex align="center" justify="center" pt='0em'>
       <Box bg="white" p={6} rounded="md" w={'60%'}>
         <Text fontSize={'3xl'} as={'b'} mb={4}>Preferences</Text>
         <Formik
           initialValues={getInitials()}
-          onSubmit={(values, actions) => {
-            setTimeout(() => {
-              alert(JSON.stringify(values, null, 2));
-              convertValue(values);
-              updateAddress();
-              actions.setSubmitting(false);
-            }, 1000);
+          onSubmit={async (values, actions) => {
+            convertValue(values);
+            // data is now updated
+            const idtk = await user.getIdToken();
+            updateData({ val: data, idToken: idtk });
+            actions.resetForm();
           }}
         >
           {(props) => (
@@ -263,5 +289,5 @@ export default function UserForm() {
         </Formik>
       </Box>
     </Flex >
-              }</>);
+  }</>);
 }
