@@ -1,11 +1,15 @@
-import HookForm from '../components/HookForm'
+import {
+  Box
+} from '@chakra-ui/react';
+
+import UserForm from '../components/UserForm'
 import Header from '../components/header'
 
 export default function Home() {
   return (
-    <h1>
+    <Box w={'full'}>
       <Header />
-      <HookForm />
-    </h1>
+      <UserForm />
+    </Box>
   )
 }
