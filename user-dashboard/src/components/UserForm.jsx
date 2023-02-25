@@ -35,6 +35,12 @@ const getUserData = async (idToken) => {
 
 export default function UserForm() {
 
+  function d(x) {
+    console.log(selectedAddress + ' ' + x);
+    console.log(selectedAddress == x + 1);
+    return x;
+  }
+
   const [selectedAddress, setAddress] = useState(0);
   const [user] = useAuthState(auth);
   const { data, isSuccess } = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
@@ -42,6 +48,31 @@ export default function UserForm() {
   })
   console.log("user ", JSON.stringify(user))
   console.log("read ", JSON.stringify(data));
+
+  const addresses = [
+    {
+      id: '01273048120',
+      name: 'Puri Virakarn',
+      title: "parcel name",
+      userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
+      instructions: ["Leave Parcel at the door"],
+      leaveParcel: true,
+      status: "On the way",
+      mobileNumber: '123446',
+      emailAddr: "adsfljas@opijpo.co.sg",
+    },
+    {
+      id: '01273048120',
+      name: 'Puri Virakarn',
+      title: "parcel name",
+      userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
+      instructions: ["Leave Parcel at the door"],
+      leaveParcel: true,
+      status: "On the way",
+      mobileNumber: '123446',
+      emailAddr: "adsfljas@opijpo.co.sg",
+    }
+  ]
 
   return (
     <Flex align="center" justify="center" pt='0em'>
@@ -70,14 +101,120 @@ export default function UserForm() {
                   setAddress(e.target.value ? e.target.value : 0)
                 }}
                 sx={{
-                  'margin': 4
+                  'marginTop': 4,
+                  'marginBottom': 4
                 }}
               >
-                <option value='1'>Address 1</option>
-                <option value='2'>Address 2</option>
+                {
+                  addresses.map((address, index) => (
+                    <option value={index + 1}>{address + (index + 1)}</option>
+                  ))
+                }
               </Select>
               <VStack spacing={4} align="flex-start">
-                {selectedAddress == 1 && <VStack spacing={4} align="flex-start" w={'full'} id='Address1'>
+                {
+                  addresses.map((address, index) => (
+                    selectedAddress == d(index) + 1
+                      ? <VStack spacing={4} align="flex-start" w={'full'} id={'Address' + (index + 1)}>
+                        <Text fontSize={'xl'} as={'b'}>{'Address' + (index + 1)}</Text>
+                        <FormControl isInvalid={!!errors.password && touched.password}>
+                          <FormLabel htmlFor="userAddr1">Address Line 1</FormLabel>
+                          <Field
+                            as={Input}
+                            id="userAddr1"
+                            name="userAddr1"
+                            type="userAddr1"
+                            variant="filled"
+                            placeholder="Address Line 1"
+
+                          />
+                        </FormControl>
+                        <FormControl isInvalid={!!errors.password && touched.password}>
+                          <FormLabel htmlFor="userAddr2">Address Line 2</FormLabel>
+                          <Field
+                            as={Input}
+                            id="userAddr2"
+                            name="userAddr2"
+                            type="userAddr2"
+                            variant="filled"
+                            placeholder="Address Line 2"
+
+                          />
+                        </FormControl>
+                        <FormControl isInvalid={!!errors.password && touched.password}>
+                          <FormLabel htmlFor="userAddr3">Address Line 3</FormLabel>
+                          <Field
+                            as={Input}
+                            id="userAddr3"
+                            name="userAddr3"
+                            type="userAddr3"
+                            variant="filled"
+                            placeholder="Address Line 3"
+
+                          />
+                        </FormControl>
+                        <Grid templateColumns='repeat(2, 1fr)' w={'full'} gap={4}>
+                          <GridItem>
+                            <FormControl>
+                              <FormLabel htmlFor="city">City</FormLabel>
+                              <Field
+                                as={Input}
+                                id="city"
+                                name="city"
+                                type="city"
+                                variant="filled"
+                                placeholder="City"
+
+                              />
+                            </FormControl>
+                          </GridItem>
+                          <GridItem>
+                            <FormControl>
+                              <FormLabel htmlFor="postalCode">Postal Code</FormLabel>
+                              <Field
+                                as={Input}
+                                id="postalCode"
+                                name="postalCode"
+                                type="postalCode"
+                                variant="filled"
+                                placeholder="Postal Code"
+
+                              />
+                              <FormErrorMessage>{errors.password}</FormErrorMessage>
+                            </FormControl>
+                          </GridItem>
+                          <GridItem>
+                            <FormControl>
+                              <FormLabel htmlFor="phoneNumber">Phone Number</FormLabel>
+                              <Field
+                                as={Input}
+                                id="phoneNumber"
+                                name="phoneNumber"
+                                type="phoneNumber"
+                                variant="filled"
+                                placeholder="Phone"
+                              />
+                            </FormControl>
+                          </GridItem>
+                          <GridItem>
+                            <FormControl>
+                              <FormLabel htmlFor="name">Email</FormLabel>
+                              <Field
+                                as={Input}
+                                id="email"
+                                name="email"
+                                type="email"
+                                variant="filled"
+                                placeholder="John.Doe@example.com"
+                              />
+                            </FormControl>
+                          </GridItem>
+                        </Grid>
+                      </VStack>
+                      : <></>
+                  ))
+                }
+                {/* {selectedAddress == 1 && <VStack spacing={4} align="flex-start" w={'full'} id='Address1'>
                   <Text fontSize={'xl'} as={'b'}>Address 1</Text>
                   <FormControl isInvalid={!!errors.password && touched.password}>
                     <FormLabel htmlFor="userAddr1">Address Line 1</FormLabel>
@@ -267,7 +404,7 @@ export default function UserForm() {
                       </FormControl>
                     </GridItem>
                   </Grid>
-                </VStack>}
+                </VStack>} */}
                 {/* <VStack spacing={4} align="flex-start" w={'full'}>
                   <Text fontSize={'xl'} as={'b'}>Shipping Time</Text>
                   <TableContainer

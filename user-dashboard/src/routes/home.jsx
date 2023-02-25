@@ -24,8 +24,6 @@ export default function Home() {
     });
   }
 
-  console.log(!currentUser);
-
   return (
     <Box w={'full'}>
       <Header currentUser={user} logOut={logOut} />
