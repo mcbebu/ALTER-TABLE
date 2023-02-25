@@ -27,7 +27,6 @@ const TSP = (graph, address_ids, source) => {
         if (current_pathweight < min_path) {
   
             min_path = current_pathweight;
-            console.log(vertex);
             for (let i = 0; i < best_path.length; i++) best_path[i] = vertex[i];
         }
         
@@ -121,8 +120,31 @@ let source = 0;
 
 let result = TSP(graph, address_ids, source);
 
-console.log(result.min_path);
+// console.log(result.min_path);
 console.log(result.best_path);
 
 // console.log(distance);
 // console.log(duration);
+
+let cumulativeTime = [];
+let cumulativeDistance = [];
+
+for (let i = 0; i < result.best_path.length - 1; i++) {
+    
+    cumulativeTime.push(duration[parseInt(result.best_path[i])][parseInt(result.best_path[i + 1])]);
+    cumulativeDistance.push(distance[parseInt(result.best_path[i])][parseInt(result.best_path[i + 1])]);
+    if (i != 0) cumulativeTime[i] += cumulativeTime[i - 1];
+    if (i != 0) cumulativeDistance[i] += cumulativeDistance[i - 1];
+}
+
+result.best_path = result.best_path.map((e) => parseInt(e));
+
+cumulativeTime = [0].concat(cumulativeTime);
+cumulativeDistance = [0].concat(cumulativeDistance);
+
+cumulativeTime = cumulativeTime.map((e) => parseInt(e.toFixed(1)));
+cumulativeDistance = cumulativeDistance.map((e) => parseInt(e.toFixed(1)));
+
+console.log(result.best_path);
+console.log(cumulativeTime);
+console.log(cumulativeDistance);

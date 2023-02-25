@@ -38,7 +38,6 @@ const TSP = (graph, address_ids, source) => {
     };
 }
 
-export TSP;
 
 const findNextPermutation = (data) => {
     
