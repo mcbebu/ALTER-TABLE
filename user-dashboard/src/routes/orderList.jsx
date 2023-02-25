@@ -26,6 +26,14 @@ import {
   PopoverArrow,
   PopoverCloseButton,
   useToast,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -57,7 +65,7 @@ const getUser = async (idToken) => {
   return data;
 };
 
-const writeData = async ({pushdata, id, idToken, leaveParcelVal, newuserdata, addrIndex, value}) => {
+const writeData = async ({ pushdata, id, idToken, leaveParcelVal, newuserdata, addrIndex, value }) => {
   let tempData = pushdata;
   tempData.leaveParcel = leaveParcelVal;
   tempData.instructions = pushdata.instructions;
@@ -115,7 +123,7 @@ export default function OrderedList() {
   const OrderCard = (props) => {
     const client = useQueryClient()
     const toast = useToast()
-    const {mutate: updateOrder} = useMutation(({pushdata, id, idToken, leaveParcelVal, newuserdata, addrIndex, value}) => writeData({pushdata, id, idToken, leaveParcelVal, newuserdata, addrIndex, value}), {
+    const { mutate: updateOrder } = useMutation(({ pushdata, id, idToken, leaveParcelVal, newuserdata, addrIndex, value }) => writeData({ pushdata, id, idToken, leaveParcelVal, newuserdata, addrIndex, value }), {
       onSuccess: () => {
         toast({
           title: "Order Updated",
@@ -151,31 +159,58 @@ export default function OrderedList() {
     const leaveParcelChange = (e) => {
       setLeaveParcel(e.target.value);
     };
-    
+
+    const dummy = [false, false, false, false, false, false, false, false, false, false, false, false]
+    const [avail, setAvail] = useState(dummy);
+
+    const [waitingForResponse, setWaiting] = useState(false);
+
+    const idxToTime = (index) => {
+      if (index == 0) return '12AM';
+      if (index == 6) return '12PM';
+      if (index < 6) return index * 2 + 'AM';
+      return (index - 6) * 2 + 'PM';
+    }
+
+    const changeBool = (idx) => {
+      return () => {
+        setAvail(prev => prev.map((entry, index) => (
+          index === idx ? !entry : entry
+        )))
+      }
+    }
+
+    const { isOpen, onOpen, onClose } = useDisclosure()
+
+    const handleRqS = () => {
+      onClose();
+      setWaiting(true);
+    }
+
     return (
       <>
         {isSuccess && (
           <>
             {data[props.index].status === "On the way" ||
-            data[props.index].status === "Delivered" ||
-            !editing ? (
-              <Card w={data[props.index].status==="On the way" ? 450 : 400} h={"100%"} 
-                boxShadow={data[props.index].status==="On the way" ? "2xl" : "none"}>
+              data[props.index].status === "Delivered" ||
+              !editing ? (
+              <Card w={data[props.index].status === "On the way" ? 450 : 400} h={"100%"}
+                boxShadow={data[props.index].status === "On the way" ? "2xl" : "none"} maxW={400}>
                 <CardHeader bg="gray.600">
-                    <Center m='auto'>
-                      <HStack spacing={10}>
-                        <Kbd bg={mapColor(data[props.index].status)}>
-                          {data[props.index].status}
-                        </Kbd>
-                        {data[props.index].status==="On the way" && <HStack fontSize='14px'><VStack><Kbd fontSize='16px'>{data[props.index].estimatedArrivalTime} mins</Kbd><Kbd fontSize='16px'>{data[props.index].stopsUntilDelivery} stops</Kbd></VStack></HStack>}
-                        <Box>
-                          <Text fontSize="14px" fontWeight="bold" color='white'>
-                            Tracking id
-                          </Text>
-                          <Center><Kbd m={0}>{data[props.index].id}</Kbd></Center>
-                        </Box>
-                      </HStack>
-                    </Center>
+                  <Center m='auto'>
+                    <HStack spacing={10}>
+                      <Kbd bg={mapColor(data[props.index].status)}>
+                        {data[props.index].status}
+                      </Kbd>
+                      {data[props.index].status === "On the way" && <HStack fontSize='14px'><VStack><Kbd fontSize='16px'>{data[props.index].estimatedArrivalTime} mins</Kbd><Kbd fontSize='16px'>{data[props.index].stopsUntilDelivery} stops</Kbd></VStack></HStack>}
+                      <Box>
+                        <Text fontSize="14px" fontWeight="bold" color='white'>
+                          Tracking id
+                        </Text>
+                        <Center><Kbd m={0}>{data[props.index].id}</Kbd></Center>
+                      </Box>
+                    </HStack>
+                  </Center>
                 </CardHeader>
                 <CardBody>
                   <Center>
@@ -209,7 +244,7 @@ export default function OrderedList() {
                   )}
                   {!data[props.index].instructions && (
                     <>
-                        <Box ml={6} fontStyle='italic'>No Instructions</Box>
+                      <Box ml={6} fontStyle='italic'>No Instructions</Box>
                     </>
                   )}
                   <Text fontSize="20px" fontWeight="semibold">
@@ -221,36 +256,51 @@ export default function OrderedList() {
                   data[props.index].status === "On the way" ||
                   data[props.index].status === "Delivered"
                 ) && (
-                  <Button
-                    bg='gray.800'
-                    color='gray.200'
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setEditing(1);
-                    }}
-                    type="submit"
-                  >
-                    Edit Information
-                  </Button>
-                )}
+                    <Button
+                      bg='gray.800'
+                      color='gray.200'
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setEditing(1);
+                      }}
+                      type="submit"
+                    >
+                      Edit Information
+                    </Button>
+                  )}
                 {(data[props.index].status === "On the way" ||
                   data[props.index].status === "Delivered") && (
-                  <Popover>
-                    <PopoverTrigger>
-                      <Button colorScheme="red" type="submit">
+                    <Box maxW={400}>
+                      <Button colorScheme="red" type="submit" onClick={onOpen} w='full'>
                         Cannot Receive Parcel?
                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent>
-                      <PopoverArrow />
-                      <PopoverCloseButton />
-                      <PopoverHeader bg='red.600' color='white'>Change delivery date</PopoverHeader>
-                      <PopoverBody>
-                        Click Me!
-                      </PopoverBody>
-                    </PopoverContent>
-                  </Popover>
-                )}
+                      <Modal isOpen={isOpen} onClose={onClose}>
+                        <ModalOverlay />
+                        <ModalContent>
+                          <ModalHeader>Click on your available time to make them green</ModalHeader>
+                          <ModalCloseButton />
+                          <ModalBody>
+                            <HStack maxW='none'>
+                              {avail.map((entry, index) => (
+                                <VStack onClick={changeBool(index)}>
+                                  <Text fontSize={'sm'}>{idxToTime(index)}</Text>
+                                  {index === 8 ? <Box w={8} h={8} bg='gray' /> : entry ? <Box w={8} h={8} bg={'green'} /> : <Box w={8} h={8} bg={'red'} />}
+                                </VStack>
+                              ))
+                              }
+                            </HStack>
+                          </ModalBody>
+                          <ModalFooter>
+                            <Button colorScheme='blue' mr={3} onClick={onClose}>
+                              Close
+                            </Button>
+                            <Button colorScheme='red' onClick={handleRqS}>Submit Request</Button>
+                          </ModalFooter>
+                        </ModalContent>
+                      </Modal>
+                    </Box>
+                  )}
+                {waitingForResponse ? (<Text m='auto'>Waiting for response</Text>) : <></>}
               </Card>
             ) : (
               <Card w={400}>
@@ -287,7 +337,7 @@ export default function OrderedList() {
                       onSubmit={async (values, actions) => {
                         setEditing(0);
                         // writeData(values);
-                        updateOrder({pushdata: data[props.index], val: values, id: data[props.index].id, idToken: await user.getIdToken(), leaveParcelVal: leaveParcelVal, newuserdata: userdata, addrIndex: addressIndex, value: email})
+                        updateOrder({ pushdata: data[props.index], val: values, id: data[props.index].id, idToken: await user.getIdToken(), leaveParcelVal: leaveParcelVal, newuserdata: userdata, addrIndex: addressIndex, value: email })
                         // alert(JSON.stringify(values, null, 2));
                         actions.resetForm();
                       }}
@@ -359,7 +409,7 @@ export default function OrderedList() {
                                 variant="filled"
                                 placeholder="John Doe"
                                 value={email}
-                                onChange={((e)=>setEmail(e.target.value))}
+                                onChange={((e) => setEmail(e.target.value))}
                               />
                             </FormControl>
                             <FormControl>
