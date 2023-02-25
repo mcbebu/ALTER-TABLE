@@ -16,6 +16,14 @@ import {
     Select,
     FormErrorMessage,
     Button,
+    Popover,
+    PopoverTrigger,
+    PopoverContent,
+    PopoverHeader,
+    PopoverBody,
+    PopoverFooter,
+    PopoverArrow,
+    PopoverCloseButton,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { Formik, Field } from 'formik'
@@ -37,16 +45,17 @@ const OrderCard = (props) => {
         <>
             {(props.data.status==='On the way' || 
                 props.data.status==='Delivered') || !editing ? 
-            <Card w={500}>
+            <Card w={300}>
                 <CardHeader bg='gray.300'>
                     <Center>
                         <Kbd bg={mapColor(props.data.status)}>{props.data.status}</Kbd>
                     </Center>
                     <Center>
-                        <HStack>
+                        <VStack>
                             <Text fontSize='20px' fontWeight='semibold'>Tracking id</Text>
-                            <Kbd>{props.data.id}</Kbd>
-                        </HStack>
+                            <Kbd m={0}>{props.data.id}</Kbd>
+                            <br />
+                        </VStack>
                     </Center>
                     <Center>
                     <Text fontSize='20px' fontWeight='bold'>{props.data.title}</Text>
@@ -70,6 +79,20 @@ const OrderCard = (props) => {
                 </CardBody>
                 {!(props.data.status==='On the way' || props.data.status==='Delivered') &&
                     <Button colorScheme='blue' onClick={(e)=>{e.preventDefault(); setEditing(1)}} type="submit">Edit Information</Button>}
+                {(props.data.status==='On the way' || props.data.status==='Delivered') &&
+                    <Popover>
+                        <PopoverTrigger>
+                        <Button colorScheme='blue' type="submit">Edit Information</Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                            <PopoverArrow />
+                            <PopoverCloseButton />
+                            <PopoverHeader> Cannot Edit Information</PopoverHeader>
+                            <PopoverBody>
+                                The parcel is already on the way.
+                            </PopoverBody>
+                        </PopoverContent>
+                    </Popover>}
             </Card> 
             :
             <Card>

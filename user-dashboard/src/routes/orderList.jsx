@@ -91,7 +91,7 @@ export default function OrderedList() {
   return (
     <h1>
       <Header currentUser={user} logOut={logOut} />
-      <SimpleGrid spacingY={4} mt={6} columns={{ 'sm': 1, 'xl': 2 }}>
+      <SimpleGrid spacingY={4} mt={6} columns={{ 'sm': 1, 'md': 3,'xl': 4 }}>
         {dummyData.map((eachOrder, index) => (
           <Box boxShadow={'xl'} m='auto'>
             <OrderCard data={eachOrder} index={index} userData={dummyUser}></OrderCard>
