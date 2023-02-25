@@ -161,7 +161,7 @@ export default function OrderedList() {
             !editing ? (
               <Card w={data[props.index].status==="On the way" ? 450 : 400} h={"100%"} 
                 boxShadow={data[props.index].status==="On the way" ? "2xl" : "none"}>
-                <CardHeader bg="gray.300">
+                <CardHeader bg="gray.600">
                     <Center m='auto'>
                       <HStack spacing={10}>
                         <Kbd bg={mapColor(data[props.index].status)}>
@@ -169,7 +169,7 @@ export default function OrderedList() {
                         </Kbd>
                         {data[props.index].status==="On the way" && <HStack fontSize='14px'><VStack><Kbd fontSize='16px'>{data[props.index].estimatedArrivalTime} mins</Kbd><Kbd fontSize='16px'>{data[props.index].stopsUntilDelivery} stops</Kbd></VStack></HStack>}
                         <Box>
-                          <Text fontSize="14px" fontWeight="semibold">
+                          <Text fontSize="14px" fontWeight="bold" color='white'>
                             Tracking id
                           </Text>
                           <Center><Kbd m={0}>{data[props.index].id}</Kbd></Center>
@@ -222,7 +222,8 @@ export default function OrderedList() {
                   data[props.index].status === "Delivered"
                 ) && (
                   <Button
-                    colorScheme="blue"
+                    bg='gray.800'
+                    color='gray.200'
                     onClick={(e) => {
                       e.preventDefault();
                       setEditing(1);
