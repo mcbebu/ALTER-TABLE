@@ -13,9 +13,9 @@ import {
   Divider,
 } from "@chakra-ui/react";
 
-export default function App() {
+export default function HookForm() {
   return (
-    <Flex bg="gray.100" align="center" justify="center" h="100vh">
+    <Flex bg="gray.100" align="center" justify="center" pt='0em' h='90vh'>
       <Box bg="white" p={6} rounded="md" w={64}>
         <Formik
           initialValues={{
