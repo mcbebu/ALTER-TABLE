@@ -2,7 +2,7 @@
 
 Welcome to our submission for the NinjaVan Hackathon!  
 
-[MyNinja Logo](images/logo_wht.png?raw=true)
+![MyNinja Logo](images/logo_wht.png?raw=true)
 
 Our team has developed a new **personalised dashboard for consignees (MyNinja)** that provides a wide range of options and user-friendly interface for managing their orders.
 
