@@ -4,6 +4,9 @@ import {
   Text,
   Button,
   Image,
+  Heading,
+  Center,
+  Container,
 } from '@chakra-ui/react';
 import { useNavigate } from "react-router-dom";
 import PhoneNumberInput from './../components/phoneNumberInput';
@@ -62,21 +65,27 @@ export default function Login() {
   }
   return (
     <Box alignContent={'center'} textAlign={'center'} maxW={800} margin={'auto'}>
-      <Text fontSize='2xl'>Welcome! Please Login</Text>
-      <Image maxW={400} m={'auto'} src={cover} /><br />
+      <Heading as='h1' size='3xl' mt={30} noOfLines={1}>
+        Welcome to MyNinja!
+      </Heading>
+      <Image maxW={400} m={'auto'} mt={30} src={cover} /><br />
       {!show
         ? <Box><PhoneNumberInput
           value={value}
           options={countryOptions}
           placeholder="Enter phone number"
           onChange={value => setValue(value)}
+          w='50%'
+          m='auto'
         /><br />
-          <div id="recaptcha_container"></div>
-          <Button w={'80%'} colorScheme="red" onClick={activateRecaptcha}>Verify</Button><br /></Box>
+          <Center>
+            <div id="recaptcha_container" style={{'padding-bottom': "30px"}}></div>
+          </Center>
+          <Button w={'20%'} colorScheme="red" onClick={activateRecaptcha}>Verify</Button><br /></Box>
         : <Box><OtpInput
           updateOtp={updateOtp}
         />
-          <Button w={'80%'} colorScheme="red" onClick={checkOtp}>Verify</Button></Box>
+          <Button w={'20%'} colorScheme="red" onClick={checkOtp}>Verify</Button></Box>
       }
     </Box >
   )
