@@ -276,7 +276,7 @@ export default function UserForm() {
                   </FormControl>
                 </VStack>
                 <ButtonGroup gap='4' justifyContent={'flex-end'} w={'full'}>
-                  <Button type="reset" colorScheme="gray">
+                  <Button type="reset" colorScheme="gray" onClick={() => { props.actions.resetForm() }}>
                     Cancel
                   </Button>
                   <Button type="submit" colorScheme="red">
