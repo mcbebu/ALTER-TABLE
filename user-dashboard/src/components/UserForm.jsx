@@ -1,4 +1,4 @@
-import react, { useState } from 'react';
+import react, { useState, useEffect } from 'react';
 import { Formik, Field } from "formik";
 import {
   Box,
@@ -33,21 +33,16 @@ const getUserData = async (idToken) => {
   return data
 }
 
-export default function UserForm() {
 
-  function d(x) {
-    console.log(selectedAddress + ' ' + x);
-    console.log(selectedAddress == x + 1);
-    return x;
-  }
+export default function UserForm() {
 
   const [selectedAddress, setAddress] = useState(0);
   const [user] = useAuthState(auth);
-  const { data, isSuccess } = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
-    enabled: !!user
-  })
-  console.log("user ", JSON.stringify(user))
-  console.log("read ", JSON.stringify(data));
+  // const { data, isSuccess } = useQuery(['user'], async () => getUserData(await user.getIdToken()), {
+  //   enabled: !!user
+  // })
+  // console.log("user ", JSON.stringify(user))
+  // console.log("read ", JSON.stringify(data));
 
   const addresses = [
     {
@@ -65,7 +60,7 @@ export default function UserForm() {
       id: '01273048120',
       name: 'Puri Virakarn',
       title: "parcel name",
-      userAddrs: ["Addr1", "Addr2", "Addr3", "city", "postalCode"],
+      userAddrs: ["Addr12", "Addr22", "Addr32", "city", "postalCode"],
       instructions: ["Leave Parcel at the door"],
       leaveParcel: true,
       status: "On the way",
@@ -74,25 +69,58 @@ export default function UserForm() {
     }
   ]
 
-  const [userAddresses, updateAddress] = useState(addresses)
+  const [userAddresses, updateAddress] = useState(addresses);
+
+  useEffect(() => {
+    // Update the document title using the browser API
+    console.log(userAddresses);
+  });
+
+  const convertValue = (value) => {
+    let tmp = [];
+    let idx = 0;
+    console.log(value);
+    while (value['userAddr1_' + (idx + 1)]) {
+      console.log('yep ' + idx);
+      let obj = {};
+      obj.id = addresses[idx].id;
+      obj.name = addresses[idx].name;
+      obj.title = addresses[idx].title;
+      obj.instructions = addresses[idx].instructions;
+      obj.leavePArcel = addresses[idx].leaveParcel;
+      obj.status = addresses[idx].status;
+      obj.mobileNumber = value['phoneNumber_' + (idx + 1)];
+      obj.emailAddr = value['email_' + (idx + 1)];
+      obj.userAddrs = [value['userAddr1_' + (idx + 1)], value['userAddr2_' + (idx + 1)], value['userAddr3_' + (idx + 1)], value['city_' + (idx + 1)], value['postalCode_' + (idx + 1)]];
+      tmp.push(obj);
+      idx++;
+    }
+    return tmp;
+  }
+
+  const initialV = {};
+  addresses.forEach((address, index) => {
+    initialV['userAddr1_' + (index + 1)] = address.userAddrs[0];
+    initialV['userAddr2_' + (index + 1)] = address.userAddrs[1];
+    initialV['userAddr3_' + (index + 1)] = address.userAddrs[2];
+    initialV['city_' + (index + 1)] = address.userAddrs[3];
+    initialV['postalCode_' + (index + 1)] = address.userAddrs[4];
+    initialV['phoneNumber_' + (index + 1)] = address.mobileNumber;
+    initialV['email_' + (index + 1)] = address.emailAddr;
+  });
 
   return (
     <Flex align="center" justify="center" pt='0em'>
       <Box bg="white" p={6} rounded="md" w={'60%'}>
         <Text fontSize={'3xl'} as={'b'} mb={4}>Preferences</Text>
         <Formik
-          initialValues={{
-            name: "bruh",
-            userAddr1: "",
-            userAddr2: "",
-            userAddr3: "",
-            city: "",
-            postalCode: "",
-            mobileNumber: "",
-            title: "",
-          }}
-          onSubmit={(values) => {
-            alert(JSON.stringify(values, null, 2));
+          initialValues={initialV}
+          onSubmit={(values, actions) => {
+            setTimeout(() => {
+              alert(JSON.stringify(values, null, 2));
+              updateAddress(convertValue(values));
+              actions.setSubmitting(false);
+            }, 1000);
           }}
         >
           {({ handleSubmit, errors, touched }) => (
@@ -116,7 +144,7 @@ export default function UserForm() {
               <VStack spacing={4} align="flex-start">
                 {
                   addresses.map((address, index) => (
-                    selectedAddress == d(index) + 1
+                    selectedAddress == index + 1
                       ? <VStack spacing={4} align="flex-start" w={'full'} id={'Address' + (index + 1)}>
                         <Text fontSize={'xl'} as={'b'}>{'Address ' + (index + 1)}</Text>
                         <FormControl isInvalid={!!errors.password && touched.password}>
