@@ -9,8 +9,7 @@ Our team has developed a new **personalised dashboard for consignees (MyNinja)**
 ## Features
 
 * User Credential: Login to the dashboard using their phone number that associates with orders.
-![Login Page](images/Login.png | width=100)
-<img src="images/Login.png" alt="isolated" width="200"/>
+<img src="images/Login.png" alt="isolated" width="200", m="auto"/>
 * Orders Overview: View status of current orders, estimated time of arrival (ETA), and order history.
 ![](images/OrderList.png | width=100)
 * Order Management: Change address, choose order aggregation option, or select delivery window service.
