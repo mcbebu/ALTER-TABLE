@@ -17,6 +17,7 @@ import {
   Select,
   Checkbox,
   CheckboxGroup,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 
@@ -56,6 +57,9 @@ export default function UserForm() {
   console.log("read ", JSON.stringify(data));
 
   const [selectedAddress, setAddress] = useState(0);
+
+  const client = useQueryClient();
+  const toast = useToast();
 
   const { mutate: updateData } = useMutation(({ val, idToken }) => writeData({ val, idToken }), {
     onSuccess: () => {
