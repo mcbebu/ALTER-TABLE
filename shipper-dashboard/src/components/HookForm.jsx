@@ -12,11 +12,18 @@ import {
   Text,
   Divider,
 } from "@chakra-ui/react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../firebase";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { onAuthStateChanged } from "firebase/auth";
+import Header from "../../../user-dashboard/src/components/header";
 
 export default function HookForm() {
+  const [user] = useAuthState(auth);
+
   return (
     <Flex bg="gray.100" align="center" justify="center" pt='0em'>
-      <Box bg="white" p={6} rounded="md" w={300}>
+      <Box bg="white" p={6} rounded="md" w={600}>
         <Formik
           initialValues={{
             name: "",

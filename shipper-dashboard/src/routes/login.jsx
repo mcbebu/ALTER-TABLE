@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import PhoneNumberInput from "./../components/phoneNumberInput";
 import { COUNTRIES } from "../components/countries";
 
-import cover from "../images/cover.png";
 import OtpInput from "../components/otpInput";
 
 import { auth, appSignIn } from "../../firebase";
@@ -49,7 +48,6 @@ export default function Login() {
       <Heading as="h1" size="3xl" mt={30} noOfLines={1}>
         Welcome to MyNinja!
       </Heading>
-      <Image maxW={400} m={"auto"} mt={30} src={cover} />
       <br />
       {!show ? (
         <Box>

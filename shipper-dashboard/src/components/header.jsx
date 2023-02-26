@@ -35,7 +35,7 @@ const NavLink = ({ children }) => (
   </Link>
 );
 
-export default function Header() {
+export default function Header({ currentUser, logOut}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -59,11 +59,11 @@ export default function Header() {
                 variant={'link'}
                 cursor={'pointer'}
                 minW={0}>
-                <Text>Currently Logged In As: +65 81487658</Text>
+                <Text>Currently Logged In As: {currentUser?.phoneNumber}</Text>
               </MenuButton>
               <MenuList>
                 <MenuItem>Dashboard</MenuItem>
-                <MenuItem>Orders</MenuItem>
+                <MenuItem>Create Order</MenuItem>
                 <MenuDivider />
                 <MenuItem>Log Out</MenuItem>
               </MenuList>
