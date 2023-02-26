@@ -8,13 +8,14 @@ Our team has developed a new **personalised dashboard for consignees (MyNinja)**
 
 ## Features
 
-* User Credential: Login to the dashboard using their phone number that associates with orders.
+* User Credential: Login to the dashboard using their phone number that associates with orders.<br/>
 <p align="center"><img src="images/Login.png" alt="isolated" width="400"/></p>
-* Orders Overview: View status of current orders, estimated time of arrival (ETA), and order history.
-<p align="center"><img src="images/OrderList.png" alt="isolated" width="400"/></p>
-* Order Management: Change address, choose order aggregation option, or select delivery window service.
-<p align="center"><img src="images/ChangeAddress.png" alt="isolated" width="400"/></p>
-* Profile Management: Store and update their addresses, and also indicate address preference by days in the week.
+* Orders Overview: View status of current orders, estimated time of arrival (ETA), and order history.<br/>
+<p align="center"><img src="images/OrderList.png" alt="isolated" width="650"/></p>
+* Order Management: Change address, choose order aggregation option, or select delivery window service.<br/>
+<p align="center"><img src="images/ChangeAddress.png" alt="isolated" width="250"/></p>
+* Profile Management: Store and update their addresses, and also indicate address preference by days in the week.<br/>
+<p align="center"><img src="images/Preferences.png" alt="isolated" width="650"/></p>
 
 ## How to use the dashboard
 
@@ -25,6 +26,7 @@ In managing orders, you have options to: <br/>
     - Edit Information on orders before it leaves sorting hub
     - Request new delivery window based on your availability with alteration fees (if not available at the ETA)
     - Check driver's approval on the requests
+<p align="center"><img src="images/DeliveryWindow.png" alt="isolated" width="650"/></p>
 
 ## Technical Frameworks Used
 
