@@ -152,7 +152,6 @@ export default function OrderedList() {
     const [leaveParcelVal, setLeaveParcel] = useState(data.leaveParcel);
     const [addressIndex, setAddressIndex] = useState(0);
     const [email, setEmail] = useState(data[props.index].address.emailAddr)
-    // dummyUser.addresses.findIndex((x)=>{return x.userAddr1===data.userAddrs[0];})
     const addressIndexChange = (e) => {
       setAddressIndex(e.target.value);
     };
@@ -196,7 +195,7 @@ export default function OrderedList() {
               !editing ? (
               <Card w={data[props.index].status === "On the way" ? 450 : 400} h={"100%"}
                 boxShadow={data[props.index].status === "On the way" ? "2xl" : "none"} maxW={400}>
-                <CardHeader bg="gray.600">
+                <CardHeader bg="gray.600" h={'90px'}>
                   <Center m='auto'>
                     <HStack spacing={10}>
                       <Kbd bg={mapColor(data[props.index].status)}>
@@ -353,16 +352,27 @@ export default function OrderedList() {
                               <Select onChange={(e) => addressIndexChange(e)}>
                                 {userdata.addresses[0] && (
                                   <option value={0}>
-                                    {userdata.addresses[0].userAddr1}, {"  "}
-                                    {userdata.addresses[0].userAddr2}, {"  "}
-                                    {userdata.addresses[0].userAddr3}
+                                    {userdata.addresses[0].userAddr1}
                                   </option>
                                 )}
                                 {userdata.addresses[1] && (
                                   <option value={1}>
-                                    {userdata.addresses[1].userAddr1}, {"  "}
-                                    {userdata.addresses[1].userAddr2}, {"  "}
-                                    {userdata.addresses[1].userAddr3}
+                                    {userdata.addresses[1].userAddr1}
+                                  </option>
+                                )}
+                                {userdata.addresses[2] && (
+                                  <option value={2}>
+                                    {userdata.addresses[2].userAddr1}
+                                  </option>
+                                )}
+                                {userdata.addresses[3] && (
+                                  <option value={1}>
+                                    {userdata.addresses[3].userAddr1}
+                                  </option>
+                                )}
+                                {userdata.addresses[4] && (
+                                  <option value={4}>
+                                    {userdata.addresses[4].userAddr1}
                                   </option>
                                 )}
                               </Select>
@@ -479,9 +489,44 @@ export default function OrderedList() {
             {data && (
               <>
                 {data.map((eachOrder, index) => (
+                  eachOrder.status==="On the way" ?
                   <Flex boxShadow={"xl"} m="auto" h="100%">
                     <OrderCard index={index}></OrderCard>
                   </Flex>
+                  : <></>
+                ))}
+              </>
+            )}
+            {data && (
+              <>
+                {data.map((eachOrder, index) => (
+                  eachOrder.status==="Delivered" ?
+                  <Flex boxShadow={"xl"} m="auto" h="100%">
+                    <OrderCard index={index}></OrderCard>
+                  </Flex>
+                  : <></>
+                ))}
+              </>
+            )}
+            {data && (
+              <>
+                {data.map((eachOrder, index) => (
+                  eachOrder.status==="Picked up" ?
+                  <Flex boxShadow={"xl"} m="auto" h="100%">
+                    <OrderCard index={index}></OrderCard>
+                  </Flex>
+                  : <></>
+                ))}
+              </>
+            )}
+            {data && (
+              <>
+                {data.map((eachOrder, index) => (
+                  eachOrder.status==="Order created" ?
+                  <Flex boxShadow={"xl"} m="auto" h="100%">
+                    <OrderCard index={index}></OrderCard>
+                  </Flex>
+                  : <></>
                 ))}
               </>
             )}
