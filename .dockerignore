@@ -37,3 +37,6 @@ tmp
 
 # Image
 images
+
+# Sample data
+SampleData.json
