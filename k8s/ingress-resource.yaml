@@ -22,3 +22,10 @@ spec:
             name: myninja-server-svc
             port:
               number: 80
+      - pathType: Prefix
+        path: "/dashboard"
+        backend:
+          service:
+            name: myninja-user-dashboard-svc
+            port:
+              number: 80
